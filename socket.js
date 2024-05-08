@@ -6,7 +6,7 @@ exports.socketConnection = (server) => {
 
     io = new Server(server, {
         cors: {
-          origin: process.env.ENVIRONMENT == 'development' ? "http://localhost:4200":"https://sportzbattleapp.azurewebsites.net", // Allow only requests from this origin
+          origin: process.env.ENVIRONMENT == 'development' ? "http://localhost:4200":"https://sportzbattle.azurewebsites.net", // Allow only requests from this origin
           methods: ["GET", "POST"],        // Allowable methods
           allowedHeaders: ["my-custom-header"], // Custom headers you might use
           credentials: true                 // Allow cookies and other credentials
