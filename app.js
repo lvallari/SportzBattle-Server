@@ -20,6 +20,7 @@ var sendgridRouter = require('./routes/sendgrid');
 var verifyRouter = require('./routes/verify');
 var stripeRouter = require('./routes/stripe');
 var questionsRouter = require('./routes/questions');
+var uploaderRouter = require('./routes/uploader');
 
 var app = express();
 
@@ -138,6 +139,7 @@ app.use('/sendgrid', sendgridRouter);
 app.use('/verify',verifyRouter);
 app.use('/stripe',stripeRouter);
 app.use('/questions',questionsRouter);
+app.use('/uploader',uploaderRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

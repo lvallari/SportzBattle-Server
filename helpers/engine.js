@@ -5,15 +5,16 @@ const { sendMessage } = require('../socket');
 function start(){
     console.log('engine started');
     var ctr = 0;
+    var cycle = 5
     setInterval(() => {
-        if (ctr < 5) getQuestion();
-        if (ctr == 5) sendMessage({message: 'leaderboard'});
-        if (ctr == 6) {
+        if (ctr < cycle) getQuestion();
+        if (ctr == (cycle)) sendMessage({message: 'leaderboard'});
+        if (ctr == (cycle + 1)) {
             sendMessage({message: 'advertisement'});
             ctr = -1;
         };
         ctr += 1
-    },10000);
+    },13000);
 }
 
 /* 
@@ -29,7 +30,8 @@ async function getQuestion(){
         question_id: questionx.question_id,
         question: questionx.question,
         answers: common.shuffle([questionx.correct_answer, questionx.option1, questionx.option2, questionx.option3]),
-        key: common.crypt('sb',questionx.correct_answer)
+        key: common.crypt('sb',questionx.correct_answer),
+        value_points: questionx.value_points
     }
 
     console.log('sent ', question);
