@@ -28,7 +28,7 @@ async function getQuestion(){
     
     var question = {
         question_id: questionx.question_id,
-        question: questionx.question,
+        question: common.crypt('sb',questionx.question),
         answers: common.shuffle([questionx.correct_answer, questionx.option1, questionx.option2, questionx.option3]),
         key: common.crypt('sb',questionx.correct_answer),
         value_points: questionx.value_points
