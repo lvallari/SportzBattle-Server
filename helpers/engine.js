@@ -5,7 +5,7 @@ const { sendMessage } = require('../socket');
 function start(){
     console.log('engine started');
     var ctr = 0;
-    var cycle = 5;
+    var cycle = 10;
     setInterval(() => {
         if (ctr < cycle) getQuestion();
         if (ctr == (cycle)) sendMessage({message: 'leaderboard'});
