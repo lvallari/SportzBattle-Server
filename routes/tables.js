@@ -134,6 +134,8 @@ router.post('/getVerses', function (req, res, next) {
 
 function getID_field(table){
   if (table == 'questions') return 'question_id';
+  if (table == 'games') return 'game_id';
+  if (table == 'users') return 'user_id';
   else return 'id';
 }
 

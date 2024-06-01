@@ -100,14 +100,17 @@ passport.use(new LocalStrategy(
 
 // tell passport how to serialize the user
 passport.serializeUser((user, done) => {
-  done(null, user.id);
+  done(null, user.user_id);
 });
 
 passport.deserializeUser((id, done) => {
   //console.log('passport.deserialize id=',id);
-  var sqlstr = 'SELECT * FROM users WHERE id=' + id;
+  var sqlstr = 'SELECT * FROM users WHERE user_id=' + id;
     conn.query(sqlstr, function (err,rows){
-      if(err) done(err, false)
+      if(err) {
+        console.log('err', err);
+        done(err, false);
+      }
       else done(null, rows[0]);
       conn.getConnection( function(err, connection){
         connection.release();

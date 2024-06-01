@@ -1,11 +1,20 @@
 var express = require('express');
 var router = express.Router();
+var users = require('../helpers/users');
 const tables = require('../helpers/tables');
 
 /* GET users listing. */
 router.get('/', function(req, res, next) {
   res.send('respond with a resource');
 });
+
+router.post('/createUser', function(req, res, next) {
+  var user_data = req.body;
+  users.createUser(user_data).then(function(data){
+      res.status(200).send(data);
+  });
+});
+
 
 router.post('/validateCode', function(req, res, next) {
   var user_response = req.body.code;
@@ -27,6 +36,18 @@ router.post('/validateCode', function(req, res, next) {
 
     else res.status(200).send({status:'failed'});
 
+  })
+
+  //res.send('respond with a resource');
+});
+
+router.get('/activity', function(req, res, next) {
+  var user_id = req.query.id;
+
+  users.getActivityByUser(user_id).then(data => {
+    res.status(200).send(data);
+  }).catch((err) => {
+    res.status(201).send(err);
   })
 
   //res.send('respond with a resource');
