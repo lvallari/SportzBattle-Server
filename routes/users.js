@@ -48,8 +48,18 @@ router.get('/activity', function(req, res, next) {
     res.status(200).send(data);
   }).catch((err) => {
     res.status(201).send(err);
-  })
+  });
+  //res.send('respond with a resource');
+});
 
+router.get('/gamesByVenue', function(req, res, next) {
+  var venue_id = req.query.id;
+
+  users.getGamesByVenue(venue_id).then(data => {
+    res.status(200).send(data);
+  }).catch((err) => {
+    res.status(201).send(err);
+  });
   //res.send('respond with a resource');
 });
 

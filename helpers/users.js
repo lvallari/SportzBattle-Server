@@ -36,7 +36,25 @@ function getActivityByUser(user_id){
     });
 }
 
+function getGamesByVenue(venue_id){
+    return new Promise(function (resolve, reject) {
+        var sql = `SELECT 
+        games.*,
+        venues.*,
+        users.username AS username, users.image AS user_image
+        FROM games 
+        RIGHT JOIN venues ON venues.venue_id=games.venue_id 
+        RIGHT JOIN users ON games.user_id=users.user_id
+        WHERE games.venue_id=${venue_id}`;
+        conn.query(sql, (err, result) => {
+            if (err) return reject(err);
+            resolve(result);
+        });
+    });
+}
+
 module.exports = {
     createUser:createUser,
-    getActivityByUser:getActivityByUser 
+    getActivityByUser:getActivityByUser,
+    getGamesByVenue:getGamesByVenue 
 }
