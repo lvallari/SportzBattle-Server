@@ -1,5 +1,6 @@
 var conn = require('../db');
 var tables = require('./tables');
+var common = require('./common');
 var sendgrid = require('./sendgrid');
 
 async function createUser(data){
@@ -53,8 +54,39 @@ function getGamesByVenue(venue_id){
     });
 }
 
+function getUsersByVenue(venue_id){
+    return new Promise(function (resolve, reject) {
+        var sql = `SELECT 
+        games.*,
+        users.username AS username, users.email, users.user_id 
+        FROM games 
+        RIGHT JOIN users ON games.user_id=users.user_id
+        WHERE games.venue_id=${venue_id}`;
+        conn.query(sql, (err, result) => {
+
+            if (err) return reject(err);
+            
+            console.log('players',result);
+            var players = [];
+            result.forEach(x => {
+                var record = players.find(n => {return n.user_id == x.user_id});
+                if (!record){
+                    var object = {
+                        user_id: x.user_id,
+                        email: x.email,
+                        username: x.username
+                    }
+                    players.push(object);
+                }
+            })
+            resolve(players);
+        });
+    });
+}
+
 module.exports = {
     createUser:createUser,
     getActivityByUser:getActivityByUser,
-    getGamesByVenue:getGamesByVenue 
+    getGamesByVenue:getGamesByVenue,
+    getUsersByVenue:getUsersByVenue
 }

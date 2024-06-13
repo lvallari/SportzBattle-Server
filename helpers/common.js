@@ -118,6 +118,37 @@ function decrypt(salt, encoded){
     .join("");
 };
 
+function getFirstDayOfMonthEpoch() {
+  // Get the current date
+  const currentDate = new Date();
+  
+  // Set the date to the first day of the current month
+  const firstDayOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+  
+  // Convert the date to epoch time (milliseconds since January 1, 1970)
+  const epochTime = firstDayOfMonth.getTime();
+  
+  // Return the epoch time
+  return epochTime;
+}
+
+function getEpochTimeForTodayAtMidnight() {
+  // Create a new Date object for today's date
+  const now = new Date();
+  
+  // Set the time to 12:01 AM
+  const midnight = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 1, 0, 0);
+  
+  // Return the epoch time
+  return midnight.getTime();
+}
+
+function getOrdinalSuffix(number) {
+  const suffixes = ["th", "st", "nd", "rd"];
+  const value = number % 100;
+  return number + (suffixes[(value - 20) % 10] || suffixes[value] || suffixes[0]);
+}
+
 module.exports = {
     generateVerificationCode:generateVerificationCode,
     generateResetToken: generateResetToken,
@@ -125,5 +156,8 @@ module.exports = {
     generateMessageToken:generateMessageToken, 
     shuffle:shuffle,
     crypt: crypt,
-    decrypt: decrypt
+    decrypt: decrypt,
+    getFirstDayOfMonthEpoch:getFirstDayOfMonthEpoch,
+    getOrdinalSuffix: getOrdinalSuffix,
+    getEpochTimeForTodayAtMidnight:getEpochTimeForTodayAtMidnight
 }

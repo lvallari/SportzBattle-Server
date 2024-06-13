@@ -1,7 +1,9 @@
 var express = require('express');
 var router = express.Router();
-var users = require('../helpers/users');
+const users = require('../helpers/users');
+const stats = require('../helpers/stats');
 const tables = require('../helpers/tables');
+const reports = require('../helpers/reports');
 
 /* GET users listing. */
 router.get('/', function(req, res, next) {
@@ -52,6 +54,18 @@ router.get('/activity', function(req, res, next) {
   //res.send('respond with a resource');
 });
 
+router.get('/stats', function(req, res, next) {
+  var user_id = req.query.id;
+
+  stats.getUserStats(user_id).then(data => {
+    res.status(200).send(data);
+  }).catch((err) => {
+    console.log('err',err);
+    res.status(201).send(err);
+  });
+  //res.send('respond with a resource');
+});
+
 router.get('/gamesByVenue', function(req, res, next) {
   var venue_id = req.query.id;
 
@@ -62,5 +76,27 @@ router.get('/gamesByVenue', function(req, res, next) {
   });
   //res.send('respond with a resource');
 });
+
+router.get('/usersByVenue', function(req, res, next) {
+  var venue_id = req.query.id;
+
+  users.getUsersByVenue(venue_id).then(data => {
+    res.status(200).send(data);
+  }).catch((err) => {
+    res.status(201).send(err);
+  });
+  //res.send('respond with a resource');
+});
+
+router.get('/downloadUsersByVenue', function(req, res, next) {
+  var venue_id = req.query.id;
+  reports.getCSVOfUsersEmails(venue_id).then(data => {
+    res.status(200).send(data);
+  }).catch((err) => {
+    res.status(201).send(err);
+  });
+});
+
+
 
 module.exports = router;
