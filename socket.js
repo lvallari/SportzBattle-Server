@@ -36,6 +36,7 @@ exports.socketConnection = (server) => {
         });
         */
 
+        /*
         socket.on('joinRoom', function (data) {
             //console.log('joined room', data.chatid);
             socket.join(data.chatid);
@@ -59,7 +60,7 @@ exports.socketConnection = (server) => {
             io.to(message.chat).emit('new-message', message);
             io.to('P'+ message.platform).emit('platform-message', message);
         });
-
+        */
         socket.on('disconnectRoom', function (room) {
             socket.leave(room);
             //console.log('user disconnected room', room);

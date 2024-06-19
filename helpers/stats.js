@@ -21,7 +21,6 @@ function getUserStats(user_id){
     return new Promise(function (resolve, reject) {
         Promise.all([
             tables.getAll('games'),
-            //tables.getAll('user_activity'),
             getUserActivityWithCategory(),
             tables.getByField('users','account_type','player')
         ]).then( data => {
@@ -35,6 +34,8 @@ function getUserStats(user_id){
             var start_of_month_time = common.getFirstDayOfMonthEpoch();
             var today_at_midnight = common.getEpochTimeForTodayAtMidnight();
 
+            
+
             users.forEach(x => {
                 x.games = games.filter(n => {return n.user_id == x.user_id});
 
@@ -46,17 +47,21 @@ function getUserStats(user_id){
                 var all_time_points = 0;
                 var games_today = 0;
                 var points_today = 0;
+                var active_this_month = false;
+                var active_today = false;
 
                 x.games.forEach(n => {
                     all_time_points += n.score;
                     if (n.score > top_score_all_time) top_score_all_time = n.score;
                     if (n.timestamp > start_of_month_time){
+                        active_this_month = true;
                         monthly_points += n.score;
                         if (n.score > top_score_month) top_score_month = n.score;
                     }
                     if (n.timestamp > today_at_midnight){
                         games_today += 1;
                         points_today += n.score;
+                        active_today = true;
                     }
                 });
 
@@ -66,6 +71,8 @@ function getUserStats(user_id){
                 x.top_score_month = top_score_month;
                 x.points_today = points_today;
                 x.games_today = games_today;
+                x.active_this_month = active_this_month;
+                x.active_today = active_today;
 
                 x.user_activity = user_activity.filter(n => {return n.user_id == x.user_id});
 
@@ -110,49 +117,65 @@ function getUserStats(user_id){
             //get user record
             var user_record = users.find(x => {return x.user_id == user_id});
 
+            //get daily and monthly users
+            var number_users_daily = users.filter(n => {return n.active_today == true}).length;
+            var number_users_monthly = users.filter(n => {return n.active_this_month == true}).length;
+
             //sort by games
             var users_sorted_by_games = users.sort((a,b) => {return b.number_of_games - a.number_of_games});
             user_record.number_of_games_rank = users_sorted_by_games.map(x => {return x.user_id}).indexOf(Number(user_id)) + 1;
+            user_record.number_of_games_number_players = users_sorted_by_games.length;
 
             //sort by games today
             var users_sorted_by_games_today = users.sort((a,b) => {return b.games_today - a.games_today});
             user_record.games_today_rank = users_sorted_by_games_today.map(x => {return x.user_id}).indexOf(Number(user_id)) + 1;
+            user_record.games_today_number_players = number_users_daily;
 
             //sort by top_score
             var users_sorted_by_top_score = users.sort((a,b) => {return b.top_score_all_time - a.top_score_all_time});
             user_record.top_score_all_time_rank = users_sorted_by_top_score.map(x => {return x.user_id}).indexOf(Number(user_id)) + 1;
+            user_record.top_score_all_time_number_players = users_sorted_by_top_score.length;
 
             //sort by top_score month
             var users_sorted_by_top_score_month = users.sort((a,b) => {return b.top_score_month - a.top_score_month});
             user_record.top_score_month_rank = users_sorted_by_top_score_month.map(x => {return x.user_id}).indexOf(Number(user_id)) + 1;
+            user_record.top_score_month_number_players = number_users_monthly;
 
             //sort by all time points
             var users_sorted_by_all_time_points = users.sort((a,b) => {return b.all_time_points - a.all_time_points});
             user_record.all_time_points_rank = users_sorted_by_all_time_points.map(x => {return x.user_id}).indexOf(Number(user_id)) + 1;
+            user_record.all_time_points_number_players = users_sorted_by_all_time_points.length;
 
             //sort by daily points
             var users_sorted_by_points_today = users.sort((a,b) => {return b.points_today - a.points_today});
             user_record.points_today_rank = users_sorted_by_points_today.map(x => {return x.user_id}).indexOf(Number(user_id)) + 1;
+            user_record.points_today_number_players = number_users_daily;
 
             //sort by monthly points
             var users_sorted_by_monthly_points = users.sort((a,b) => {return b.monthly_points - a.monthly_points});
             user_record.monthly_points_rank = users_sorted_by_monthly_points.map(x => {return x.user_id}).indexOf(Number(user_id)) + 1;
+            user_record.monthly_points_number_players = number_users_monthly;
 
             //sort_by_all_pct
             var users_sorted_by_all_pct = users.sort((a,b) => {return b.all_pct - a.all_pct});
             user_record.all_pct_rank = users_sorted_by_all_pct.map(x => {return x.user_id}).indexOf(Number(user_id)) + 1;
+            user_record.all_pct_number_players = users_sorted_by_all_pct.length;
 
             //sort_by_nba_pct
             var users_sorted_by_nba_pct = users.sort((a,b) => {return b.nba_pct - a.nba_pct});
             user_record.nba_pct_rank = users_sorted_by_nba_pct.map(x => {return x.user_id}).indexOf(Number(user_id)) + 1;
+            user_record.nba_pct_number_players = users_sorted_by_nba_pct.length;
 
             //sort_by_nfl_pct
             var users_sorted_by_nfl_pct = users.sort((a,b) => {return b.nfl_pct - a.nfl_pct});
             user_record.nfl_pct_rank = users_sorted_by_nfl_pct.map(x => {return x.user_id}).indexOf(Number(user_id)) + 1;
+            user_record.nfl_pct_number_players = users_sorted_by_nfl_pct.length;
+
 
             //sort_by_mlb_pct
             var users_sorted_by_mlb_pct = users.sort((a,b) => {return b.mlb_pct - a.mlb_pct});
             user_record.mlb_pct_rank = users_sorted_by_mlb_pct.map(x => {return x.user_id}).indexOf(Number(user_id)) + 1;
+            user_record.mlb_pct_number_players = users_sorted_by_mlb_pct.length;
 
             user_record.number_of_games_rank_suffix = common.getOrdinalSuffix(user_record.number_of_games_rank);
             user_record.games_today_rank_suffix = common.getOrdinalSuffix(user_record.games_today_rank);

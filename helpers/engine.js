@@ -1,5 +1,7 @@
 var common = require('./common');
 var questions = require('./questions');
+var tables = require('./tables');
+
 const { sendMessage } = require('../socket');
 
 function start(){
@@ -14,7 +16,7 @@ function start(){
             ctr = -1;
         };
         ctr += 1
-    },14000);
+    },16000);
 }
 
 /* 
@@ -27,6 +29,7 @@ async function getQuestion(){
     var questionx = res[0];
     
     var question = {
+        message: 'question',
         question_id: questionx.question_id,
         question: common.crypt('sb',questionx.question),
         answers: common.shuffle([questionx.correct_answer, questionx.option1, questionx.option2, questionx.option3]),
@@ -36,6 +39,30 @@ async function getQuestion(){
 
     console.log('sent ', question);
     sendMessage(question);
+
+    //send % of users that answered correctly
+    /*
+    setTimeout(() => {
+        tables.getByField('user_activity','question_id', question.question_id).then(data => {
+            var time_threshold = Date.now() - 2000;
+            var questions = data.filter(x => {return x.question_timestamp > time_threshold});
+
+            var got_right_ctr = 0;
+            questions.forEach(x => {
+                if (x.got_it_right == 1) got_right_ctr++;
+            })
+
+            var object = {
+                message: 'results',
+                percent: (100 * got_right_ctr / questions.length).toFixed(2),
+                got_right: got_right_ctr,
+                total_players: questions.length
+            }
+
+            sendMessage(object);
+        })
+    },11500);
+    */
 }
 
 module.exports = {

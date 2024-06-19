@@ -66,7 +66,7 @@ function getUsersByVenue(venue_id){
 
             if (err) return reject(err);
             
-            console.log('players',result);
+           //. console.log('players',result);
             var players = [];
             result.forEach(x => {
                 var record = players.find(n => {return n.user_id == x.user_id});

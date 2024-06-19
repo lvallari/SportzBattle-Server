@@ -15,6 +15,18 @@ function getRandom() {
         });
     });
 }
+/*
+function getUserActivityForCurrentQuestion(question_id){
+    return new Promise(function (resolve, reject) {
+        var sql = `
+        SELECT user_activity.*, games.`;
+        conn.query(sql, (err, result) => {
+            if (err) return reject(err);
+            resolve(result);
+        });
+    });
+}
+*/
 
 module.exports = {
     getRandom:getRandom

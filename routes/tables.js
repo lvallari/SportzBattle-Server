@@ -132,6 +132,19 @@ router.post('/getVerses', function (req, res, next) {
   });
 });
 
+// POST user activity
+router.post('/storeUserActivity', function(req, res, next){
+  var data = req.body;
+  data.timestamp_question = Date.now();
+  //console.log('insert object ', data);
+  var sql = `INSERT INTO user_activity SET ?`;
+  conn.query(sql, data, (err, result) => {
+      if(err) throw err;
+      res.status(200).send({id: result.insertId});
+      releaseConnection(conn);
+  });
+});
+
 function getID_field(table){
   if (table == 'questions') return 'question_id';
   if (table == 'games') return 'game_id';
