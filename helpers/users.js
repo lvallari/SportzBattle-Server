@@ -37,6 +37,19 @@ function getActivityByUser(user_id){
     });
 }
 
+function getUserDailyHighScore(user_id){
+    var t0 = common.getEpochTimeForTodayAtMidnight();
+    return new Promise(function (resolve, reject) {
+        var sql = `SELECT score FROM games  
+        WHERE user_id=${user_id} AND timestamp > ${t0}
+        ORDER BY score DESC LIMIT 1`;
+        conn.query(sql, (err, result) => {
+            if (err) return reject(err);
+            resolve(result);
+        });
+    });
+}
+
 function getGamesByVenue(venue_id){
     return new Promise(function (resolve, reject) {
         var sql = `SELECT 
@@ -47,6 +60,22 @@ function getGamesByVenue(venue_id){
         RIGHT JOIN venues ON venues.venue_id=games.venue_id 
         RIGHT JOIN users ON games.user_id=users.user_id
         WHERE games.venue_id=${venue_id}`;
+        conn.query(sql, (err, result) => {
+            if (err) return reject(err);
+            resolve(result);
+        });
+    });
+}
+
+function getAllGames(){
+    return new Promise(function (resolve, reject) {
+        var sql = `SELECT 
+        games.*,
+        venues.*,
+        users.username AS username, users.image AS user_image
+        FROM games 
+        RIGHT JOIN venues ON venues.venue_id=games.venue_id 
+        RIGHT JOIN users ON games.user_id=users.user_id`;
         conn.query(sql, (err, result) => {
             if (err) return reject(err);
             resolve(result);
@@ -88,5 +117,7 @@ module.exports = {
     createUser:createUser,
     getActivityByUser:getActivityByUser,
     getGamesByVenue:getGamesByVenue,
-    getUsersByVenue:getUsersByVenue
+    getUsersByVenue:getUsersByVenue,
+    getAllGames:getAllGames,
+    getUserDailyHighScore:getUserDailyHighScore
 }
