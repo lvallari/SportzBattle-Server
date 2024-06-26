@@ -49,6 +49,7 @@ function getUserStats(user_id){
                 var points_today = 0;
                 var active_this_month = false;
                 var active_today = false;
+                var high_points_today = 0;
 
                 x.games.forEach(n => {
                     all_time_points += n.score;
@@ -62,6 +63,7 @@ function getUserStats(user_id){
                         games_today += 1;
                         points_today += n.score;
                         active_today = true;
+                        if (n.score > high_points_today) high_points_today = n.score;
                     }
                 });
 
@@ -73,6 +75,7 @@ function getUserStats(user_id){
                 x.games_today = games_today;
                 x.active_this_month = active_this_month;
                 x.active_today = active_today;
+                x.high_points_today = high_points_today;
 
                 x.user_activity = user_activity.filter(n => {return n.user_id == x.user_id});
 
@@ -147,9 +150,9 @@ function getUserStats(user_id){
             user_record.all_time_points_number_players = users_sorted_by_all_time_points.length;
 
             //sort by daily points
-            var users_sorted_by_points_today = users.sort((a,b) => {return b.points_today - a.points_today});
-            user_record.points_today_rank = users_sorted_by_points_today.map(x => {return x.user_id}).indexOf(Number(user_id)) + 1;
-            user_record.points_today_number_players = number_users_daily;
+            var users_sorted_by_points_today = users.sort((a,b) => {return b.high_points_today - a.high_points_today});
+            user_record.high_points_today_rank = users_sorted_by_points_today.map(x => {return x.user_id}).indexOf(Number(user_id)) + 1;
+            user_record.high_points_today_number_players = number_users_daily;
 
             //sort by monthly points
             var users_sorted_by_monthly_points = users.sort((a,b) => {return b.monthly_points - a.monthly_points});
@@ -180,7 +183,7 @@ function getUserStats(user_id){
             user_record.number_of_games_rank_suffix = common.getOrdinalSuffix(user_record.number_of_games_rank);
             user_record.games_today_rank_suffix = common.getOrdinalSuffix(user_record.games_today_rank);
             user_record.all_time_points_rank_suffix = common.getOrdinalSuffix(user_record.all_time_points_rank);
-            user_record.points_today_rank_suffix = common.getOrdinalSuffix(user_record.points_today_rank);
+            user_record.high_points_today_rank_suffix = common.getOrdinalSuffix(user_record.high_points_today_rank);
             user_record.monthly_points_rank_suffix = common.getOrdinalSuffix(user_record.monthly_points_rank);
             user_record.top_score_all_time_rank_suffix = common.getOrdinalSuffix(user_record.top_score_all_time_rank);
 
