@@ -66,6 +66,26 @@ router.get('/stats', function(req, res, next) {
   //res.send('respond with a resource');
 });
 
+router.get('/stats-users', function(req, res, next) {
+  stats.getUserStatsForAdmin().then(data => {
+    res.status(200).send(data);
+  }).catch((err) => {
+    console.log('err',err);
+    res.status(201).send(err);
+  });
+  //res.send('respond with a resource');
+});
+
+router.get('/stats-venues', function(req, res, next) {
+  stats.getVenueStatsForAdmin().then(data => {
+    res.status(200).send(data);
+  }).catch((err) => {
+    console.log('err',err);
+    res.status(201).send(err);
+  });
+  //res.send('respond with a resource');
+});
+
 router.get('/gamesByVenue', function(req, res, next) {
   var venue_id = req.query.id;
 
@@ -102,6 +122,17 @@ router.get('/usersByVenue', function(req, res, next) {
   users.getUsersByVenue(venue_id).then(data => {
     res.status(200).send(data);
   }).catch((err) => {
+    res.status(201).send(err);
+  });
+  //res.send('respond with a resource');
+});
+
+router.get('/getPlayersByDate', function(req, res, next) {
+  var date = req.query.date;
+  stats.getPlayersByDate(date).then(data => {
+    res.status(200).send(data);
+  }).catch((err) => {
+    console.log('err', err);
     res.status(201).send(err);
   });
   //res.send('respond with a resource');

@@ -149,6 +149,69 @@ function getOrdinalSuffix(number) {
   return number + (suffixes[(value - 20) % 10] || suffixes[value] || suffixes[0]);
 }
 
+function getWhen(timestamp){
+  //This function calculates difference between current time and elapsedTime and returns humanized string
+  var cT = Date.now();
+  var dT = cT - timestamp;
+
+  var dTmin = Math.floor(dT/60000); //delta time minutes
+
+  //console.log('cT', cT);
+  //console.log('delta', dTmin);
+  
+  //if within a minute, show 'just now'
+  if (dTmin < 1) return 'just now';
+  else if (dTmin < 60) return dTmin + ' mins ago';
+  else {
+    var dThr = Math.floor(dT/3600000); //delta time hrs
+    if (dThr == 1) return '1 hr ago';
+    else if (dThr < 24) return dThr + ' hrs ago';
+    else {
+      var dTday = Math.floor(dT/86400000); //delta time days
+      if (dTday == 1) return '1 day ago';
+      else if (dTday < 30) return dTday + ' days ago';
+      else {
+        var dTmonth = Math.floor(dT/2592000000); //delta time months
+        if (dTmonth == 1) return '1 month ago';
+        else if (dTmonth < 12) return dTmonth + ' months ago';
+        else{
+          var dTyear = Math.floor(dT/31104000000); //delta time years
+          if (dTyear == 1) return '1 year ago';
+          else return dTyear + ' years ago';
+        }
+      }
+    
+    }
+  }
+}
+
+function getEpochAtStartOfDay(dateString) {
+  // Create a Date object from the input date string
+  let date = new Date(dateString);
+
+  // Set the hours, minutes, seconds, and milliseconds to 12:01 AM
+  date.setHours(0, 1, 0, 0);
+
+  // Get the epoch time (milliseconds since January 1, 1970)
+  let epochTime = date.getTime();
+
+  return epochTime;
+}
+
+function getEpochAtEndOfDay(dateString) {
+  // Create a Date object from the input date string
+  let date = new Date(dateString);
+
+  // Set the hours, minutes, seconds, and milliseconds to 11:59 PM
+  date.setHours(23, 59, 0, 0);
+
+  // Get the epoch time (milliseconds since January 1, 1970)
+  let epochTime = date.getTime();
+
+  return epochTime;
+}
+
+
 module.exports = {
     generateVerificationCode:generateVerificationCode,
     generateResetToken: generateResetToken,
@@ -159,5 +222,8 @@ module.exports = {
     decrypt: decrypt,
     getFirstDayOfMonthEpoch:getFirstDayOfMonthEpoch,
     getOrdinalSuffix: getOrdinalSuffix,
-    getEpochTimeForTodayAtMidnight:getEpochTimeForTodayAtMidnight
+    getEpochTimeForTodayAtMidnight:getEpochTimeForTodayAtMidnight,
+    getWhen:getWhen,
+    getEpochAtStartOfDay: getEpochAtStartOfDay,
+    getEpochAtEndOfDay: getEpochAtEndOfDay
 }
