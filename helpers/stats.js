@@ -397,6 +397,7 @@ function getPlayersByDate(date){
                     var object = {
                         user_id: x.user_id,
                         username: x.username,
+                        email: x.email,
                         image: x.image,
                         games: [x]
                     }

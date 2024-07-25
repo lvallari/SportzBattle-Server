@@ -7,7 +7,7 @@ const verify = require('../helpers/verify');
 const sgMail = require('@sendgrid/mail');
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
-
+/*
 router.post('/startTrial', function (req, res, next) {
     console.log('/startTrial', req.body);
 
@@ -25,14 +25,15 @@ router.post('/startTrial', function (req, res, next) {
     res.status(200).send({});
     
 });
+*/
 
 router.post('/passwordReset', function (req, res, next) {
     //console.log('sendgrid/passwordReset', req.body);
 
     var mailObj = {
         to: req.body.email,
-        from: "info@lifebalancetool.com",
-        templateId: "d-8e50ff23d6e04c2286087561cdfb0f98",
+        from: "admin@sportzbattle.com",
+        templateId: "d-3bd6d39d632940c6a342dac043d46aba",
         dynamic_template_data: {
             name: req.body.name,
             linkurl: req.body.linkurl
@@ -44,6 +45,7 @@ router.post('/passwordReset', function (req, res, next) {
     
 });
 
+/*
 router.post('/verifyEmail', function (req, res, next) {
     
     var code = common.generateVerificationCode();
@@ -64,7 +66,9 @@ router.post('/verifyEmail', function (req, res, next) {
     verify.storeEmailcode(req.body.user_id, code);
     
 });
+*/
 
+/*
 router.post('/thankYouForPurchase', function (req, res, next) {
     
     var mailObj = {
@@ -83,7 +87,9 @@ router.post('/thankYouForPurchase', function (req, res, next) {
     res.status(200).send({});
 
 });
+*/
 
+/*
 router.post('/yourPlanHasChanged', function (req, res, next) {
     
     var mailObj = {
@@ -100,7 +106,7 @@ router.post('/yourPlanHasChanged', function (req, res, next) {
     res.status(200).send({});
 
 });
-
+*/
 /*
 router.post('/newSignup', function (req, res, next) {  
     //console.log('sendgrid/passwordReset', req.body);
