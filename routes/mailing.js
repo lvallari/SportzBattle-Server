@@ -36,7 +36,28 @@ router.post('/passwordReset', function (req, res, next) {
         templateId: "d-3bd6d39d632940c6a342dac043d46aba",
         dynamic_template_data: {
             name: req.body.name,
-            linkurl: req.body.linkurl
+            link_url: req.body.link_url
+        }
+    }
+
+    sendMail(mailObj);
+    res.status(200).send({});
+    
+});
+
+router.post('/requestInfo', function (req, res, next) {
+    //console.log('sendgrid/passwordReset', req.body);
+
+    var mailObj = {
+        to: req.body.email,
+        from: "admin@sportzbattle.com",
+        templateId: "d-d230f4ff0dc04f3abcb88d0a7ecd2415",
+        dynamic_template_data: {
+            username: req.body.username,
+            verification_link: req.body.verification_link,
+            prize: req.body.prize,
+            rank: req.body.rank,
+            date: req.body.date
         }
     }
 

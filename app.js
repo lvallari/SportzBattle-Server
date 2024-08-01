@@ -16,7 +16,7 @@ var engine  = require('./helpers/engine');
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 var tablesRouter = require('./routes/tables');
-var sendgridRouter = require('./routes/sendgrid');
+var mailingRouter = require('./routes/mailing');
 var verifyRouter = require('./routes/verify');
 var stripeRouter = require('./routes/stripe');
 var questionsRouter = require('./routes/questions');
@@ -139,7 +139,7 @@ app.post('/login', (req, res, next) => {
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
 app.use('/tables', tablesRouter);
-app.use('/sendgrid', sendgridRouter);
+app.use('/mailing', mailingRouter);
 app.use('/verify',verifyRouter);
 app.use('/stripe',stripeRouter);
 app.use('/questions',questionsRouter);
