@@ -150,6 +150,7 @@ function getID_field(table){
   if (table == 'games') return 'game_id';
   if (table == 'users') return 'user_id';
   if (table == 'venues') return 'venue_id';
+  if (table == 'advertisement_accounts') return 'advertisement_account_id';
   else return 'id';
 }
 

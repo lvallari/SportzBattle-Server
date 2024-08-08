@@ -87,7 +87,7 @@ function getUsersByVenue(venue_id){
     return new Promise(function (resolve, reject) {
         var sql = `SELECT 
         games.*,
-        users.username AS username, users.email, users.user_id 
+        users.username AS username, users.email, users.user_id, users.image 
         FROM games 
         RIGHT JOIN users ON games.user_id=users.user_id
         WHERE games.venue_id=${venue_id}`;
@@ -103,7 +103,8 @@ function getUsersByVenue(venue_id){
                     var object = {
                         user_id: x.user_id,
                         email: x.email,
-                        username: x.username
+                        username: x.username,
+                        image: x.image
                     }
                     players.push(object);
                 }

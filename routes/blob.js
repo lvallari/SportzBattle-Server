@@ -3,6 +3,19 @@ var router = express.Router();
 const blob = require('../helpers/blob');
 
 
+router.get('/getActiveAdvertisementFiles', function (req, res, next) {
+    console.log('get active advertisement files');
+    
+    blob.getActiveAdvertisementFiles().then(function(files){
+        res.status(200).send(files);
+    })
+    .catch(function(e){
+        console.log('error getting files',e)
+        res.status(201).send(e);
+    });
+
+});
+
 
 router.get('/getFiles/:advertisement_account_id', function (req, res, next) {
     console.log('getFiles');

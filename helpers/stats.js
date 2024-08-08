@@ -266,6 +266,7 @@ function getUserStatsForAdmin(){
                 x.active_today = active_today;
                 x.high_points_today = high_points_today;
                 x.last_played = last_game ? common.getWhen(last_game):'-';
+                x.last_played_timestamp = last_game;
 
                 x.number_of_days_played_in_a_row = daysInARow(x.games);
                 var user_activityx = user_activity.filter(n => n.user_id == x.user_id);
@@ -355,7 +356,14 @@ function daysInARow(data){
     return longestStreak;
 }
 
-function getLongestCorrectStreak(data) {
+function getLongestCorrectStreak(_data) {
+
+    //Make the scope daily
+    let date = new Date();
+    date.setHours(0, 1, 0, 0);
+    let start_of_day = date.getTime();
+    let data = _data.filter(x => {return x.timestamp_question > start_of_day});
+
     let longestStreak = 0;
     let currentStreak = 0;
   
