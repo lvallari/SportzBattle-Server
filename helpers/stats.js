@@ -212,13 +212,15 @@ function getUserStatsForAdmin(){
             tables.getAll('games'),
             getUserActivityWithCategory(),
             tables.getByField('users','account_type','player'),
-            tables.getAll('user_activity')
+            tables.getAll('user_activity'),
+            tables.getAll('venues')
         ]).then( data => {
 
             var games = data[0];
             var user_activity = data[1];
             var users = data[2];
             var user_activity = data[3];
+            var venues = data[4];
 
             var start_of_month_time = common.getFirstDayOfMonthEpoch();
             var today_at_midnight = common.getEpochTimeForTodayAtMidnight();
@@ -281,6 +283,9 @@ function getUserStatsForAdmin(){
                 x.all_questions = all_questions;
                 x.all_correct = all_correct;
                 x.all_pct = all_pct;
+
+                var venue = venues.find(n => {return n.venue_id == x.venue_id});
+                if (venue) x.venue_name = venue.business_name;
 
             });
 

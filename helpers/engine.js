@@ -11,7 +11,8 @@ function start(){
     setInterval(() => {
         if (ctr < cycle) getQuestion();
         if (ctr == (cycle)) sendMessage({message: 'leaderboard'});
-        if (ctr == (cycle + 1)) {
+        if (ctr == (cycle + 1)) sendMessage({message: 'qrcode'});
+        if (ctr == (cycle + 2)) {
             sendMessage({message: 'advertisement'});
             ctr = -1;
         };
