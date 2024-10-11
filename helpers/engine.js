@@ -17,13 +17,22 @@ function start(){
             ctr = -1;
         };
         ctr += 1
-    },16000);
+    },19000);
 }
 
 /* 
 select a.* from random_data a, (select max(id)*rand() randid  from random_data) b
      where a.id >= b.randid limit 1;
 */
+
+function getHidingOrder(array,correct_answer){
+    var indexes = [];
+    array.forEach((x,i) => { 
+        if (x != correct_answer) indexes.push(i);
+    });
+    indexes = common.shuffle(indexes);
+    return indexes;
+}
 
 async function getQuestion(){
     var res = await questions.getRandom();
@@ -35,9 +44,10 @@ async function getQuestion(){
         question: common.crypt('sb',questionx.question),
         answers: common.shuffle([questionx.correct_answer, questionx.option1, questionx.option2, questionx.option3]),
         key: common.crypt('sb',questionx.correct_answer),
-        value_points: questionx.value_points
+        value_points: 100//questionx.value_points,
     }
 
+    question.hiding_order = common.crypt('sb',JSON.stringify(getHidingOrder(question.answers, questionx.correct_answer)));
     console.log('sent ', question);
     sendMessage(question);
 
