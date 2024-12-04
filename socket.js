@@ -26,6 +26,11 @@ exports.socketConnection = (server) => {
             socket.join(room);
         }
 
+        socket.on('ping', function (data) {
+            //console.log('joined room', data.chatid);
+            console.log('ping*');
+        });
+
         /*
         socket.on('getRoomConnections', function (data) {
             //console.log('getRoomConnections', data.chatid);
