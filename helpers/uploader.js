@@ -18,7 +18,7 @@ async function batchUpload(filename){
     var records = await parseUploadFile(path.join(__dirname,'..','temp', filename));
 
     for (let row of records){
-        await tables.addItem('questions',row);
+        await tables.addItem('questions2',row);
     }
 
     return records.length;

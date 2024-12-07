@@ -37,7 +37,7 @@ function getHidingOrder(array,correct_answer){
 async function getQuestion(){
     var res = await questions.getRandom();
     var questionx = res[0];
-    
+    console.log('questionx', questionx);
     var question = {
         message: 'question',
         question_id: questionx.question_id,

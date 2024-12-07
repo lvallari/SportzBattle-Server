@@ -146,7 +146,7 @@ router.post('/storeUserActivity', function(req, res, next){
 });
 
 function getID_field(table){
-  if (table == 'questions') return 'question_id';
+  if (table == 'questions2') return 'question_id';
   if (table == 'games') return 'game_id';
   if (table == 'users') return 'user_id';
   if (table == 'venues') return 'venue_id';
