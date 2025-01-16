@@ -44,7 +44,8 @@ async function getQuestion(){
         question: common.crypt('sb',questionx.question),
         answers: common.shuffle([questionx.correct_answer, questionx.option1, questionx.option2, questionx.option3]),
         key: common.crypt('sb',questionx.correct_answer),
-        value_points: 100//questionx.value_points,
+        value_points: 100,//questionx.value_points,
+        category: questionx.category
     }
 
     question.hiding_order = common.crypt('sb',JSON.stringify(getHidingOrder(question.answers, questionx.correct_answer)));

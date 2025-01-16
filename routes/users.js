@@ -147,6 +147,16 @@ router.get('/downloadUsersByVenue', function(req, res, next) {
   });
 });
 
+router.post('/updateBadgesCounter', function(req, res, next) {
+  var category = req.body.category;
+  var user_id = req.body.user_id;
+  users.updateBadgesCounter(user_id, category).then(data => {
+    res.status(200).send(data);
+  }).catch((err) => {
+    res.status(201).send(err);
+  });
+});
+
 
 
 module.exports = router;

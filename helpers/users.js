@@ -114,11 +114,74 @@ function getUsersByVenue(venue_id){
     });
 }
 
+function updateBadgesCounter(user_id, category){
+    return new Promise(function (resolve, reject) {
+        var sql = `SELECT 
+        users.*
+        FROM users 
+        WHERE users.user_id=${user_id}`;
+        conn.query(sql, (err, result) => {
+
+            if (err) return reject(err);
+            
+            var user = result[0];
+            console.log('user', user);
+
+            if (!user.counters_badges) user.counters_badges = '0-0-0';
+
+            var nba_ctr = Number(user.counters_badges.split('-')[0]);
+            var nfl_ctr = Number(user.counters_badges.split('-')[1]);
+            var mlb_ctr = Number(user.counters_badges.split('-')[2]);
+
+            var award = 'none';
+            //var award_icon = '';
+
+            if (category == 'NBA') {
+                nba_ctr += 1;
+                if (nba_ctr == 5) {
+                    award = 'hardwood';
+                    nba_ctr = 0;
+                    //award_icon = 'https://sportzbattle.blob.core.windows.net/system/basketball.png';
+                }
+            }
+            if (category == 'NFL') {
+                nfl_ctr += 1;
+                if (nfl_ctr == 5) {
+                    award = 'gridion';
+                    nfl_ctr = 0;
+                    //award_icon = 'https://sportzbattle.blob.core.windows.net/system/football.png';
+                }
+            }
+            if (category == 'MLB') {
+                mlb_ctr += 1;
+                if (mlb_ctr == 5) {
+                    award = 'park';
+                    mlb_ctr = 0;
+                    //award_icon = 'https://sportzbattle.blob.core.windows.net/system/baseball.png';
+                }
+            }
+
+            //Note: badge object is create from front end request
+
+            //update user_record
+            var user_object = {
+                user_id: user_id,
+                counters_badges: nba_ctr + '-' + nfl_ctr + '-' + mlb_ctr
+            }
+
+            tables.updateItem('users', 'user_id', user_object);
+
+            resolve({ award: award });
+        });
+    });
+}
+
 module.exports = {
     createUser:createUser,
     getActivityByUser:getActivityByUser,
     getGamesByVenue:getGamesByVenue,
     getUsersByVenue:getUsersByVenue,
     getAllGames:getAllGames,
-    getUserDailyHighScore:getUserDailyHighScore
+    getUserDailyHighScore:getUserDailyHighScore,
+    updateBadgesCounter:updateBadgesCounter
 }

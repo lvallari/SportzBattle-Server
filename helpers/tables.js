@@ -9,8 +9,8 @@ function update(table, id, field, val){
     });
 }
 
-function updateItem(table, data){
-    var sql = `UPDATE ${table} SET ? WHERE id = ${data.id}`;
+function updateItem(table, id_field, data){
+    var sql = `UPDATE ${table} SET ? WHERE ${id_field} = ${data[id_field]}`;
     conn.query(sql, data, (err, result) => {
         if(err) throw err;
     });
