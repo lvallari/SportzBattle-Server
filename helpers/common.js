@@ -212,6 +212,47 @@ function getEpochAtEndOfDay(dateString) {
 }
 
 
+function getYesterdayDateString() {
+  // Get today's date
+  const today = new Date();
+  
+  // Subtract one day
+  const yesterday = new Date(today);
+  yesterday.setDate(today.getDate() - 1);
+
+  // Format the date components
+  const mm = String(yesterday.getMonth() + 1).padStart(2, '0'); // Month is 0-based
+  const dd = String(yesterday.getDate()).padStart(2, '0');
+  const yyyy = yesterday.getFullYear();
+
+  // Return the formatted date string
+  return `${mm}-${dd}-${yyyy}`;
+}
+
+function getLastThreeDays() {
+  // Helper function to format a date as mm-dd-yyyy
+  function formatDate(date) {
+    const mm = String(date.getMonth() + 1).padStart(2, '0'); // Month is 0-based
+    const dd = String(date.getDate()).padStart(2, '0');
+    const yyyy = date.getFullYear();
+    return `${mm}-${dd}-${yyyy}`;
+  }
+
+  // Get today's date
+  const today = new Date();
+  
+  // Generate the array of date strings
+  const dates = [];
+  for (let i = 1; i <= 3; i++) {
+    const pastDate = new Date(today);
+    pastDate.setDate(today.getDate() - i); // Subtract days
+    dates.push(formatDate(pastDate));
+  }
+
+  return dates;
+}
+
+
 module.exports = {
     generateVerificationCode:generateVerificationCode,
     generateResetToken: generateResetToken,
@@ -225,5 +266,7 @@ module.exports = {
     getEpochTimeForTodayAtMidnight:getEpochTimeForTodayAtMidnight,
     getWhen:getWhen,
     getEpochAtStartOfDay: getEpochAtStartOfDay,
-    getEpochAtEndOfDay: getEpochAtEndOfDay
+    getEpochAtEndOfDay: getEpochAtEndOfDay,
+    getYesterdayDateString:getYesterdayDateString,
+    getLastThreeDays:getLastThreeDays
 }

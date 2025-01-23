@@ -438,10 +438,38 @@ function getPlayersByDate(date){
     });
 }
 
+function checkDailyWinner(){
+    //get todays date
+    var last_three_dates = common.getLastThreeDays();
+    console.log('last_three_dates', last_three_dates);
+    Promise.all([
+        getPlayersByDate(last_three_dates[0]),
+        getPlayersByDate(last_three_dates[1]),
+        getPlayersByDate(last_three_dates[2])
+    ]).then(data => {
+        if ((data[0].user_id == data[1].user_id) && data[0].user_id == data[2].user_id){
+            //the same user has won last 3 days
+            //award high roller badge
+            var badge_object = {
+                user_id: data[0].user_id,
+                timestamp: Date.now(),
+                badge_name: 'high-roller',
+                badge_icon: 'https://sportzbattle.blob.core.windows.net/system/dice.png',
+            }
+
+            tables.addItem('badges', badge_object);
+        }
+    })
+
+    //get yesterday's winner
+
+}
+
 
 module.exports = {
     getUserStats:getUserStats,
     getUserStatsForAdmin:getUserStatsForAdmin,
     getVenueStatsForAdmin:getVenueStatsForAdmin,
-    getPlayersByDate:getPlayersByDate
+    getPlayersByDate:getPlayersByDate,
+    checkDailyWinner: checkDailyWinner
 }

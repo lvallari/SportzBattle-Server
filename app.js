@@ -10,6 +10,8 @@ const LocalStrategy = require('passport-local').Strategy;
 var cron = require('node-cron');
 var conn = require('./db');
 
+const stats = require('./helpers/stats');
+
 var engine  = require('./helpers/engine');
 
 
@@ -166,11 +168,16 @@ app.get('/', function(req, res) {
   res.send('Hello World from Sportz-Battle Server! We are alive and well!');
 });
 
-cron.schedule('0 8 * * *', () => {
-  //renewals.sendRenewalNotices();
+// Schedule a task at midnight Pacific Time
+cron.schedule('0 0 * * *', () => {
+  //check daily winner
+  stats.checkDailyWinner();
+
+}, {
+  timezone: "America/Los_Angeles" // Set the timezone to Pacific Time
 });
 
 engine.start();
 
-
+//stats.checkDailyWinner();
 module.exports = app;
