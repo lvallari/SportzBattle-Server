@@ -67,7 +67,7 @@ router.post('/requestInfo', function (req, res, next) {
 });
 
 router.post('/tokensAwarded', function (req, res, next) {
-    //console.log('sendgrid/passwordReset', req.body);
+    console.log('sendgrid/passwordReset', req.body);
 
     var mailObj = {
         to: req.body.email,
