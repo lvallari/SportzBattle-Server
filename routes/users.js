@@ -66,6 +66,18 @@ router.get('/stats', function(req, res, next) {
   //res.send('respond with a resource');
 });
 
+router.get('/scouts', function(req, res, next) {
+  var user_id = req.query.id;
+
+  stats.getScouts(user_id).then(data => {
+    res.status(200).send(data);
+  }).catch((err) => {
+    console.log('err',err);
+    res.status(201).send(err);
+  });
+  //res.send('respond with a resource');
+});
+
 router.get('/stats-users', function(req, res, next) {
   stats.getUserStatsForAdmin().then(data => {
     res.status(200).send(data);

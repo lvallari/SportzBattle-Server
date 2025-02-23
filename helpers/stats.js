@@ -465,11 +465,23 @@ function checkDailyWinner(){
 
 }
 
+async function getScouts(user_id){
+    console.log('### get scouts');
+    var scouts = await tables.getByField('scouting_actions','scout_user_id', user_id);
+    var prospects = await tables.getByField('scouting_actions','prospect_user_id', user_id);
+
+    return {
+        scouts: scouts,
+        prospects: prospects
+    }
+}
+
 
 module.exports = {
     getUserStats:getUserStats,
     getUserStatsForAdmin:getUserStatsForAdmin,
     getVenueStatsForAdmin:getVenueStatsForAdmin,
     getPlayersByDate:getPlayersByDate,
-    checkDailyWinner: checkDailyWinner
+    checkDailyWinner: checkDailyWinner,
+    getScouts:getScouts
 }
