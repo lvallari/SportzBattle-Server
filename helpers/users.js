@@ -72,7 +72,7 @@ function getAllGames(){
         var sql = `SELECT 
         games.*,
         venues.*,
-        users.username AS username, users.image AS user_image
+        users.username AS username, users.image AS user_image, users.email 
         FROM games 
         RIGHT JOIN venues ON venues.venue_id=games.venue_id 
         RIGHT JOIN users ON games.user_id=users.user_id`;
