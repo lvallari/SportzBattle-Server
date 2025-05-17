@@ -1,3 +1,4 @@
+const { DateTime } = require('luxon');
 
 function generateVerificationCode(){
     var chars = '123456789';
@@ -252,6 +253,58 @@ function getLastThreeDays() {
   return dates;
 }
 
+function getTomorrowMidnightTimestamp() {
+  const nowET = DateTime.now().setZone('America/New_York');
+  const tomorrowET = nowET.plus({ days: 1 }).endOf('day');
+  return tomorrowET.toMillis();
+}
+
+function assignLevel(user, levels) {
+
+    //find correct level
+    var skill_level;
+    for (var i = 0; i < levels.length; i++) {
+      if (user.all_time_points) {
+        if (user.all_time_points >= levels[i].points) {
+          skill_level = levels[i];
+          break;
+        }
+      }
+      else {
+        if (user.points >= levels[i].points) {
+          skill_level = levels[i];
+          break;
+        }
+      }
+    }
+
+    //var skill_level = levels[0];
+    if (skill_level) {
+      user.level = skill_level.level;
+      user.level_icon = skill_level.icon;
+    }
+
+}
+
+function getReadableTimeUntilExpiration(expirationTimestamp) {
+  const now = Date.now();
+  const deltaMs = expirationTimestamp - now;
+
+  if (deltaMs <= 0) {
+    return "Expired";
+  }
+
+  const deltaMinutes = deltaMs / (1000 * 60);
+
+  if (deltaMinutes >= 60) {
+    const hours = Math.floor(deltaMinutes / 60);
+    return `${hours} hour${hours === 1 ? '' : 's'}`;
+  } else {
+    const minutes = Math.round(deltaMinutes);
+    return `${minutes} minute${minutes === 1 ? '' : 's'}`;
+  }
+}
+
 
 module.exports = {
     generateVerificationCode:generateVerificationCode,
@@ -268,5 +321,8 @@ module.exports = {
     getEpochAtStartOfDay: getEpochAtStartOfDay,
     getEpochAtEndOfDay: getEpochAtEndOfDay,
     getYesterdayDateString:getYesterdayDateString,
-    getLastThreeDays:getLastThreeDays
+    getLastThreeDays:getLastThreeDays,
+    getTomorrowMidnightTimestamp:getTomorrowMidnightTimestamp,
+    assignLevel:assignLevel,
+    getReadableTimeUntilExpiration:getReadableTimeUntilExpiration
 }

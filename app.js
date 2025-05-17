@@ -24,6 +24,7 @@ var stripeRouter = require('./routes/stripe');
 var questionsRouter = require('./routes/questions');
 var uploaderRouter = require('./routes/uploader');
 var blobRouter = require('./routes/blob');
+var apisRouter = require('./routes/apis');
 
 var app = express();
 
@@ -147,6 +148,7 @@ app.use('/stripe',stripeRouter);
 app.use('/questions',questionsRouter);
 app.use('/uploader',uploaderRouter);
 app.use('/blob', blobRouter);
+app.use('/apis', apisRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
