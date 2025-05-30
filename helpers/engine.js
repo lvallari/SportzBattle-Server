@@ -25,14 +25,7 @@ select a.* from random_data a, (select max(id)*rand() randid  from random_data) 
      where a.id >= b.randid limit 1;
 */
 
-function getHidingOrder(array,correct_answer){
-    var indexes = [];
-    array.forEach((x,i) => { 
-        if (x != correct_answer) indexes.push(i);
-    });
-    indexes = common.shuffle(indexes);
-    return indexes;
-}
+
 
 async function getQuestion(){
     var res = await questions.getRandom();
@@ -48,7 +41,7 @@ async function getQuestion(){
         category: questionx.category
     }
 
-    question.hiding_order = common.crypt('sb',JSON.stringify(getHidingOrder(question.answers, questionx.correct_answer)));
+    question.hiding_order = common.crypt('sb',JSON.stringify(common.getHidingOrder(question.answers, questionx.correct_answer)));
     console.log('sent ', question);
     sendMessage(question);
 

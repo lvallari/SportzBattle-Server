@@ -305,6 +305,15 @@ function getReadableTimeUntilExpiration(expirationTimestamp) {
   }
 }
 
+function getHidingOrder(array,correct_answer){
+    var indexes = [];
+    array.forEach((x,i) => { 
+        if (x != correct_answer) indexes.push(i);
+    });
+    indexes = shuffle(indexes);
+    return indexes;
+}
+
 
 module.exports = {
     generateVerificationCode:generateVerificationCode,
@@ -324,5 +333,6 @@ module.exports = {
     getLastThreeDays:getLastThreeDays,
     getTomorrowMidnightTimestamp:getTomorrowMidnightTimestamp,
     assignLevel:assignLevel,
-    getReadableTimeUntilExpiration:getReadableTimeUntilExpiration
+    getReadableTimeUntilExpiration:getReadableTimeUntilExpiration,
+    getHidingOrder:getHidingOrder
 }

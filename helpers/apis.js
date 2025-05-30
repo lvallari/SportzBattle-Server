@@ -62,7 +62,6 @@ async function getLevelForUser(item, levels){
 }
 
 
-
 async function createGameH2H(data){
     try {
     
@@ -74,6 +73,11 @@ async function createGameH2H(data){
         console.log("Timestamp:", common.getTomorrowMidnightTimestamp());
         console.log("Readable:", new Date(common.getTomorrowMidnightTimestamp()).toString());
 
+        //get question ids for game
+        var question_ids = await getGameH2HQuestions(data.sport);
+        object.question_ids = JSON.stringify(question_ids);
+
+
         await tables.addItem('h2h_games', object);
         return { msg: 'success'}
 
@@ -84,8 +88,155 @@ async function createGameH2H(data){
     }
 }
 
+async function getGameH2HQuestions(sport){
+    try {
+    var league;
+    if (sport == 'basketball') league = 'NBA';
+    else if (sport == 'football') league = 'NFL';
+    else if (sport == 'baseball') league = 'MLB';
+
+    var question_idsx = await getQuestionsIdsByLeague(league);
+    //console.log('------',question_idsx);
+    var question_ids = question_idsx.map(x => { return x.question_id; });
+    var ids = getThreeRandomIds(question_ids);
+
+    return ids;
+    }
+    catch (e){
+        console.log('error', e);
+        return [];
+    }
+}
+
+async function getQuestionsIdsByLeague(league){
+return new Promise(function (resolve, reject) {
+        var sql = `SELECT 
+        questions2.question_id 
+        FROM questions2 
+        WHERE questions2.category='${league}'`;
+        
+        conn.query(sql, (err, result) => {
+
+            if (err) {
+                console.log('error',err);
+                return reject(err);
+            }
+            
+            resolve(result);
+        });
+    });
+}
+
+async function getQuestionsFromArray(ids){
+return new Promise(function (resolve, reject) {
+        var sql = `SELECT * FROM questions2 WHERE question_id IN (${ids.join(',')})`;
+        
+        conn.query(sql, (err, result) => {
+
+            if (err) {
+                console.log('error',err);
+                return reject(err);
+            }
+            
+            resolve(result);
+        });
+    });
+}
+
+function getThreeRandomIds(array) {
+
+    const indexes = new Set();
+
+  while (indexes.size < 3 && indexes.size < array.length) {
+    const randomIndex = Math.floor(Math.random() * array.length);
+    indexes.add(array[randomIndex]);
+  }
+
+  return Array.from(indexes);
+}
+
+async function awardPoints(user_id, points){
+    var userx = await tables.getByField('users','user_id', user_id);
+    var user = userx[0];
+
+    var points = user.points += points;
+
+    var object = {
+        user_id: user.user_id,
+        points: points
+    }
+
+    await tables.updateItem('users','user_id', object);
+
+    return {msg: 'points updated'}
+}
+
+async function getH2HGame(game_id){
+    var gamex = await tables.getByField('h2h_games','h2h_game_id', game_id);
+    var game = gamex[0];
+
+    //get questions
+    try{
+        var question_ids = JSON.parse(game.question_ids);
+        var questions_raw = await getQuestionsFromArray(question_ids);
+
+
+        var questions = [];
+        questions_raw.forEach(x => {
+            var question = {
+                    message: 'question',
+                    question_id: x.question_id,
+                    question: common.crypt('sb',x.question),
+                    answers: common.shuffle([x.correct_answer, x.option1, x.option2, x.option3]),
+                    key: common.crypt('sb',x.correct_answer),
+                    category: x.category,
+                }
+            question.hiding_order = common.crypt('sb',JSON.stringify(common.getHidingOrder(question.answers, x.correct_answer)));
+
+            questions.push(question);      
+        });
+
+        
+        game.questions = questions;
+
+        return {
+            game: game
+        }
+
+    }
+    catch(e){
+        return { error: "the game has no questions"}
+    }
+
+}
+
+async function getUsersByGameH2h(h2h_game_id){
+    return new Promise(function (resolve, reject) {
+        var sql = `SELECT 
+        books.*,
+        users.image AS user_image, users.name AS user_name 
+        FROM books 
+        LEFT JOIN users ON users.user_id=books.user_id 
+        WHERE books.h2h_game_id=${h2h_game_id}`;
+        
+        conn.query(sql, (err, result) => {
+
+            if (err) {
+                console.log('error',err);
+                return reject(err);
+            }
+
+            //attach user levels??
+            
+            resolve(result);
+        });
+    });
+}
 
 module.exports = {
     getGamesForLobby:getGamesForLobby,
-    createGameH2H:createGameH2H
+    createGameH2H:createGameH2H,
+    awardPoints: awardPoints,
+    getH2HGame:getH2HGame,
+    getUsersByGameH2h:getUsersByGameH2h
 }
