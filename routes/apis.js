@@ -37,4 +37,12 @@ router.get('/getUsersByGameH2h', function(req, res, next) {
   });
 });
 
+
+router.get('/getGamesH2HByUser', function(req, res, next) {
+  var user_id = req.query.id;
+  apis.getGamesH2HByUser(user_id).then(function(data){
+      res.status(200).send(data);
+  });
+});
+
 module.exports = router;

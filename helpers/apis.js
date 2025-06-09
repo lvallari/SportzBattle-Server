@@ -97,10 +97,18 @@ async function getGameH2HQuestions(sport){
 
     var question_idsx = await getQuestionsIdsByLeague(league);
     //console.log('------',question_idsx);
-    var question_ids = question_idsx.map(x => { return x.question_id; });
-    var ids = getThreeRandomIds(question_ids);
+    
+    //easy questions
+    var easy_questions = question_idsx.filter(x => {return x.difficulty <= 1});
+    var medium_questions = question_idsx.filter(x => {return x.difficulty >=2 || x.difficulty <=3});
+    var hard_questions = question_idsx.filter(x => {return x.difficulty >=3 || x.difficulty <=4});
+    
+    //var question_ids = question_idsx.map(x => { return x.question_id; });
+    var easy_ids = getThreeRandomIds(easy_questions.map(x => { return x.question_id; }));
+    var medium_ids = getThreeRandomIds(medium_questions.map(x => { return x.question_id; }));
+    var hard_ids = getThreeRandomIds(hard_questions.map(x => { return x.question_id; }));
 
-    return ids;
+    return [easy_ids[0], medium_ids[0], hard_ids[0]];
     }
     catch (e){
         console.log('error', e);
@@ -110,8 +118,9 @@ async function getGameH2HQuestions(sport){
 
 async function getQuestionsIdsByLeague(league){
 return new Promise(function (resolve, reject) {
+        
         var sql = `SELECT 
-        questions2.question_id 
+        questions2.question_id, questions2.difficulty 
         FROM questions2 
         WHERE questions2.category='${league}'`;
         
@@ -233,10 +242,58 @@ async function getUsersByGameH2h(h2h_game_id){
     });
 }
 
+async function getGamesH2HByUser(user_id){
+
+    var games = await getGamesH2HByUser_Aux(user_id);
+
+    for (let item of games){
+        var books = await tables.getByField('books','h2h_game_id', item.h2h_game_id);
+        //sort by points
+        books = books.sort((a,b) => { return a.score - b.score;});
+        
+        books.forEach((x, i) => { 
+        x.position = i+1;
+        });
+
+      //find user position
+      var record = books.find(x => { return x.user_id == user_id });
+      if (record) {
+        item.user_position = record.position;
+        item.number_of_players = books.length;
+      }
+ 
+    }
+
+    return games;
+
+}
+
+async function getGamesH2HByUser_Aux(user_id){
+return new Promise(function (resolve, reject) {
+        var sql = `SELECT 
+        books.*,
+        h2h_games.*,
+        users.username, users.image  
+        FROM books 
+        LEFT JOIN h2h_games ON h2h_games.h2h_game_id=books.h2h_game_id 
+        LEFT JOIN users ON users.user_id=h2h_games.created_by_user_id
+        WHERE books.user_id=${user_id}`;
+        conn.query(sql, (err, result) => {
+
+            if (err) {
+                console.log('error',err);
+                return reject(err);
+            }
+            
+            resolve(result);
+        });
+    });
+}
 module.exports = {
     getGamesForLobby:getGamesForLobby,
     createGameH2H:createGameH2H,
     awardPoints: awardPoints,
     getH2HGame:getH2HGame,
-    getUsersByGameH2h:getUsersByGameH2h
+    getUsersByGameH2h:getUsersByGameH2h,
+    getGamesH2HByUser:getGamesH2HByUser
 }
