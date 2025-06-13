@@ -33,7 +33,7 @@ async function getGames(){
 return new Promise(function (resolve, reject) {
         var sql = `SELECT 
         h2h_games.*,
-        users.username AS username, users.image AS user_image, users.user_id   
+        users.username AS username, users.image AS user_image, users.user_id, users.points AS points_host     
         FROM h2h_games 
         LEFT JOIN users ON h2h_games.created_by_user_id=users.user_id
         `;
@@ -189,6 +189,9 @@ async function getH2HGame(game_id){
         var question_ids = JSON.parse(game.question_ids);
         var questions_raw = await getQuestionsFromArray(question_ids);
 
+        questions_raw = questions_raw.sort((a,b) => {
+            return a.difficulty - b.difficulty;
+        });
 
         var questions = [];
         questions_raw.forEach(x => {
@@ -199,6 +202,7 @@ async function getH2HGame(game_id){
                     answers: common.shuffle([x.correct_answer, x.option1, x.option2, x.option3]),
                     key: common.crypt('sb',x.correct_answer),
                     category: x.category,
+                    difficulty: x.difficulty
                 }
             question.hiding_order = common.crypt('sb',JSON.stringify(common.getHidingOrder(question.answers, x.correct_answer)));
 
@@ -207,6 +211,8 @@ async function getH2HGame(game_id){
 
         
         game.questions = questions;
+
+        game.expires_in = common.getReadableTimeUntilExpiration(game.expiration_timestamp);
 
         return {
             game: game
@@ -273,7 +279,7 @@ return new Promise(function (resolve, reject) {
         var sql = `SELECT 
         books.*,
         h2h_games.*,
-        users.username, users.image  
+        users.username, users.image, users.points_host   
         FROM books 
         LEFT JOIN h2h_games ON h2h_games.h2h_game_id=books.h2h_game_id 
         LEFT JOIN users ON users.user_id=h2h_games.created_by_user_id
