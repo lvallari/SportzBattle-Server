@@ -41,13 +41,17 @@ exports.socketConnection = (server) => {
         });
         */
 
-        /*
-        socket.on('joinRoom', function (data) {
-            //console.log('joined room', data.chatid);
-            socket.join(data.chatid);
-        });
+
 
         
+        // Join room
+        socket.on('joinRoom', (roomName) => {
+            console.log('<------ Joined room -------->', roomName);
+            socket.join(roomName);
+            console.log(`${socket.id} joined room ${roomName}`);
+        });
+
+        /*
         socket.on('joinPlatform', function (data) {
             //console.log('joined platform', data.platform);
             socket.join('P' + data.platform);
@@ -79,4 +83,10 @@ exports.socketConnection = (server) => {
 exports.sendMessage = function(message) {
     //io.to(message.chat).emit('message', message);
     io.emit('message', message);
+};
+
+exports.sendMessageQuestGame = function(message) {
+    console.log('sending socket quest20 ---->');
+    io.to('quest20').emit('message-20quest', message);
+    //io.emit('message', message);
 };

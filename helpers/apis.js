@@ -104,11 +104,37 @@ async function getGameH2HQuestions(sport){
     var hard_questions = question_idsx.filter(x => {return x.difficulty >=3 || x.difficulty <=4});
     
     //var question_ids = question_idsx.map(x => { return x.question_id; });
-    var easy_ids = getThreeRandomIds(easy_questions.map(x => { return x.question_id; }));
-    var medium_ids = getThreeRandomIds(medium_questions.map(x => { return x.question_id; }));
-    var hard_ids = getThreeRandomIds(hard_questions.map(x => { return x.question_id; }));
+    var easy_ids = getRandomIds(3,easy_questions.map(x => { return x.question_id; }));
+    var medium_ids = getRandomIds(3,medium_questions.map(x => { return x.question_id; }));
+    var hard_ids = getRandomIds(3,hard_questions.map(x => { return x.question_id; }));
 
     return [easy_ids[0], medium_ids[0], hard_ids[0]];
+    }
+    catch (e){
+        console.log('error', e);
+        return [];
+    }
+}
+
+async function getGame20QuestQuestions(){
+    try {
+
+    //console.log('------',question_idsx);
+    
+    //easy questions
+    var very_easy_questions = await getQuestionsByDifficulty([0,1]);
+    var easy_questions = await getQuestionsByDifficulty([2,3]);
+    var medium_questions = await getQuestionsByDifficulty([4,6]);
+    var hard_questions = await getQuestionsByDifficulty([7,7]);
+    
+    //console.log('very easy questions', very_easy_questions.slice(0,3));
+    //var question_ids = question_idsx.map(x => { return x.question_id; });
+    var very_easy_ids = getRandomIds(3, very_easy_questions.map(x => { return x.question_id; }));
+    var easy_ids = getRandomIds(4, easy_questions.map(x => { return x.question_id; }));
+    var medium_ids = getRandomIds(8, medium_questions.map(x => { return x.question_id; }));
+    var hard_ids = getRandomIds(5, hard_questions.map(x => { return x.question_id; }));
+
+    return very_easy_ids.concat(easy_ids).concat(medium_ids).concat(hard_ids);
     }
     catch (e){
         console.log('error', e);
@@ -136,6 +162,28 @@ return new Promise(function (resolve, reject) {
     });
 }
 
+async function getQuestionsByDifficulty(range){
+return new Promise(function (resolve, reject) {
+        
+        var sql = `SELECT 
+        questions2.question_id, questions2.difficulty, questions2.question 
+        FROM questions2 
+        WHERE questions2.difficulty >= '${range[0]}' AND questions2.difficulty <= '${range[1]}'`;
+        
+        conn.query(sql, (err, result) => {
+
+            if (err) {
+                console.log('error',err);
+                return reject(err);
+            }
+
+            var resultx = common.shuffle(result);
+            
+            resolve(resultx);
+        });
+    });
+}
+
 async function getQuestionsFromArray(ids){
 return new Promise(function (resolve, reject) {
         var sql = `SELECT * FROM questions2 WHERE question_id IN (${ids.join(',')})`;
@@ -152,11 +200,11 @@ return new Promise(function (resolve, reject) {
     });
 }
 
-function getThreeRandomIds(array) {
+function getRandomIds(number,array) {
 
     const indexes = new Set();
 
-  while (indexes.size < 3 && indexes.size < array.length) {
+  while (indexes.size < number && indexes.size < array.length) {
     const randomIndex = Math.floor(Math.random() * array.length);
     indexes.add(array[randomIndex]);
   }
@@ -279,7 +327,7 @@ return new Promise(function (resolve, reject) {
         var sql = `SELECT 
         books.*,
         h2h_games.*,
-        users.username, users.image, users.points_host   
+        users.username, users.image, users.points AS points_host     
         FROM books 
         LEFT JOIN h2h_games ON h2h_games.h2h_game_id=books.h2h_game_id 
         LEFT JOIN users ON users.user_id=h2h_games.created_by_user_id
@@ -301,5 +349,6 @@ module.exports = {
     awardPoints: awardPoints,
     getH2HGame:getH2HGame,
     getUsersByGameH2h:getUsersByGameH2h,
-    getGamesH2HByUser:getGamesH2HByUser
+    getGamesH2HByUser:getGamesH2HByUser,
+    getGame20QuestQuestions:getGame20QuestQuestions
 }

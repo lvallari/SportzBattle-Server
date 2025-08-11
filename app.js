@@ -7,12 +7,13 @@ require('dotenv').config({ path: __dirname + '/.env'});
 var cors = require('cors');
 const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
-var cron = require('node-cron');
+const { CronJob } = require('cron');
 var conn = require('./db');
 
 const stats = require('./helpers/stats');
 
 var engine  = require('./helpers/engine');
+var engine_20quest  = require('./helpers/engine_20quest');
 
 
 var indexRouter = require('./routes/index');
@@ -171,6 +172,7 @@ app.get('/', function(req, res) {
 });
 
 // Schedule a task at midnight Pacific Time
+/*
 cron.schedule('0 0 * * *', () => {
   //check daily winner
   stats.checkDailyWinner();
@@ -178,8 +180,33 @@ cron.schedule('0 0 * * *', () => {
 }, {
   timezone: "America/Los_Angeles" // Set the timezone to Pacific Time
 });
+*/
+
+const job1 = new CronJob('0 0 * * *', () => {
+  if (process.env.ENVIRONMENT == 'production') stats.checkDailyWinner();
+}, {
+  timezone: "America/Los_Angeles" // Set the timezone to Pacific Time
+});
+
+
+
+//start a quest20 game every 30 minutes
+const job2 = new CronJob('*/30 * * * *', () => {
+  if (true || process.env.ENVIRONMENT == 'production') engine_20quest.start();
+}, {
+  timezone: "America/Los_Angeles" // Set the timezone to Pacific Time
+});
+
+
+job1.start();
+job2.start();
 
 engine.start();
+/*
+setTimeout(() => {
+engine_20quest.start();
+},1000);
+*/
 
 //stats.checkDailyWinner();
 module.exports = app;
