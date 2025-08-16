@@ -151,6 +151,8 @@ function getID_field(table){
   if (table == 'users') return 'user_id';
   if (table == 'venues') return 'venue_id';
   if (table == 'advertisement_accounts') return 'advertisement_account_id';
+  if (table == 'quest20_games') return 'quest20_game_id';
+  if (table == 'quest20_players') return 'quest20_player_id';
   else return 'id';
 }
 

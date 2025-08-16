@@ -190,8 +190,8 @@ const job1 = new CronJob('0 0 * * *', () => {
 
 
 
-//start a quest20 game every 30 minutes
-const job2 = new CronJob('*/30 * * * *', () => {
+//start a quest20 game every 5 minutes
+const job2 = new CronJob('*/10 * * * *', () => {
   if (true || process.env.ENVIRONMENT == 'production') engine_20quest.start();
 }, {
   timezone: "America/Los_Angeles" // Set the timezone to Pacific Time
@@ -202,6 +202,7 @@ job1.start();
 job2.start();
 
 engine.start();
+//engine_20quest.createGame20Quest();
 /*
 setTimeout(() => {
 engine_20quest.start();

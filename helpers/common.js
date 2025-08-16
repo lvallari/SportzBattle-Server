@@ -314,6 +314,23 @@ function getHidingOrder(array,correct_answer){
     return indexes;
 }
 
+function getNextIntervalTime(intervalMinutes){
+  // Get current time in EST
+  const now = new Date();
+  const estTime = new Date(now.toLocaleString("en-US", { timeZone: "America/New_York" }));
+
+  // Get current minutes
+  const currentMinutes = estTime.getMinutes();
+  
+  // Find the next interval
+  const remainder = currentMinutes % intervalMinutes;
+  const minutesToAdd = remainder === 0 ? intervalMinutes : intervalMinutes - remainder;
+
+  // Calculate the next time
+  estTime.setMinutes(currentMinutes + minutesToAdd, 0, 0);
+  return estTime;
+}
+
 
 module.exports = {
     generateVerificationCode:generateVerificationCode,
@@ -334,5 +351,6 @@ module.exports = {
     getTomorrowMidnightTimestamp:getTomorrowMidnightTimestamp,
     assignLevel:assignLevel,
     getReadableTimeUntilExpiration:getReadableTimeUntilExpiration,
-    getHidingOrder:getHidingOrder
+    getHidingOrder:getHidingOrder,
+    getNextIntervalTime:getNextIntervalTime
 }

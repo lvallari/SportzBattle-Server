@@ -343,6 +343,37 @@ return new Promise(function (resolve, reject) {
         });
     });
 }
+
+async function quest20PlayerStatus(user_id, status){
+    //get current game
+    var gamex = await tables.getByField('quest20_games','status','active');
+    var game = gamex[0];
+
+    var playersx = await tables.getByField('quest20_players','quest20_game_id', game.quest20_game_id);
+    var player = playersx.find(x => { return x.user_id == user_id});
+
+    var player_object = {
+        quest20_player_id: player.quest20_player_id,
+        status: status
+    }
+
+    await tables.updateItem('quest20_players', 'quest20_player_id', player_object);
+    console.log('********** Updated user', user_id, ' to ', status);
+}
+
+async function getQuest20Players(status){
+    //get current game
+    var gamex = await tables.getByField('quest20_games','status',status);
+    console.log(gamex, status);
+    var game = gamex[0];
+
+    if (game){
+    var players = await tables.getByField('quest20_players','quest20_game_id', game.quest20_game_id);
+    return players;
+    }
+    else return [];
+}
+
 module.exports = {
     getGamesForLobby:getGamesForLobby,
     createGameH2H:createGameH2H,
@@ -350,5 +381,7 @@ module.exports = {
     getH2HGame:getH2HGame,
     getUsersByGameH2h:getUsersByGameH2h,
     getGamesH2HByUser:getGamesH2HByUser,
-    getGame20QuestQuestions:getGame20QuestQuestions
+    getGame20QuestQuestions:getGame20QuestQuestions,
+    quest20PlayerStatus:quest20PlayerStatus,
+    getQuest20Players:getQuest20Players
 }

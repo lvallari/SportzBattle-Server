@@ -57,9 +57,9 @@ function get(table, field, order, limit) {
     });
 }
 
-function deleteItem(table, id) {
+function deleteItem(table, field, val) {
     return new Promise(function (resolve, reject) {
-        var sql = `DELETE FROM ${table} WHERE id= ` + id;
+        var sql = `DELETE FROM ${table} WHERE ${field}= ` + val;
         conn.query(sql, (err, result) => {
             if (err) return reject(err);
             resolve(result);
