@@ -12,6 +12,7 @@ router.get('/', function(req, res, next) {
 
 router.post('/createUser', function(req, res, next) {
   var user_data = req.body;
+  user_data.wallet = 1000;
   users.createUser(user_data).then(function(data){
       res.status(200).send(data);
   });

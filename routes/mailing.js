@@ -87,6 +87,42 @@ router.post('/tokensAwarded', function (req, res, next) {
     
 });
 
+router.post('/payoutRequestedNotification', function (req, res, next) {
+    //console.log('sendgrid/passwordReset', req.body);
+
+    var mailObj = {
+        to: 'lvallari@gmail.com',
+        from: "admin@sportzbattle.com",
+        templateId: "d-519a8f7e98f442efb08e26237547ed58",
+        dynamic_template_data: {
+            user_name: req.body.username,
+           
+        }
+    }
+
+    sendMail(mailObj);
+    res.status(200).send({});
+    
+});
+
+router.post('/payoutRequestedConfirmation', function (req, res, next) {
+    //console.log('sendgrid/passwordReset', req.body);
+
+    var mailObj = {
+        to: req.body.email,
+        from: "admin@sportzbattle.com",
+        templateId: "d-1760ffff4ead4787821320acf71ffb36",
+        dynamic_template_data: {
+            user_name: req.body.username,
+           
+        }
+    }
+
+    sendMail(mailObj);
+    res.status(200).send({});
+    
+});
+
 function sendMail(request){
 
     //console.log('sendMail', request);
