@@ -176,6 +176,21 @@ function updateBadgesCounter(user_id, category){
     });
 }
 
+async function recordSpunTheWheel(user_id){
+
+    //get start or day for tomorrow
+    var deadline_timeline = common.epochTomorrowMidnightET();
+
+    var object = {
+        user_id: user_id,
+        timestamp_wheel_spin: deadline_timeline
+    }
+
+    await tables.updateItem('users','user_id', object);
+    return {timestamp_wheel_spin: deadline_timeline};
+
+}
+
 module.exports = {
     createUser:createUser,
     getActivityByUser:getActivityByUser,
@@ -183,5 +198,6 @@ module.exports = {
     getUsersByVenue:getUsersByVenue,
     getAllGames:getAllGames,
     getUserDailyHighScore:getUserDailyHighScore,
-    updateBadgesCounter:updateBadgesCounter
+    updateBadgesCounter:updateBadgesCounter,
+    recordSpunTheWheel:recordSpunTheWheel
 }

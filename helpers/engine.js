@@ -30,7 +30,7 @@ select a.* from random_data a, (select max(id)*rand() randid  from random_data) 
 async function getQuestion(){
     var res = await questions.getRandom();
     var questionx = res[0];
-    console.log('questionx', questionx);
+   //console.log('questionx', questionx);
     var question = {
         message: 'question',
         question_id: questionx.question_id,
@@ -42,7 +42,7 @@ async function getQuestion(){
     }
 
     question.hiding_order = common.crypt('sb',JSON.stringify(common.getHidingOrder(question.answers, questionx.correct_answer)));
-    console.log('sent ', question);
+    //console.log('sent ', question);
     sendMessage(question);
 
     //send % of users that answered correctly

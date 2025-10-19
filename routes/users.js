@@ -170,6 +170,13 @@ router.post('/updateBadgesCounter', function(req, res, next) {
   });
 });
 
+router.post('/recordSpunTheWheel', function(req, res, next) {
+  var user_id = req.body.user_id;
+  users.recordSpunTheWheel(user_id).then(function(data){
+      res.status(200).send(data);
+  });
+});
+
 
 
 module.exports = router;

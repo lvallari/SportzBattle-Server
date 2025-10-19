@@ -192,7 +192,7 @@ const job1 = new CronJob('0 0 * * *', () => {
 
 //start a quest20 game every 5 minutes
 const job2 = new CronJob('*/10 * * * *', () => {
-  if (true || process.env.ENVIRONMENT == 'production') engine_20quest.start();
+  if (process.env.ENVIRONMENT == 'production') engine_20quest.start();
 }, {
   timezone: "America/Los_Angeles" // Set the timezone to Pacific Time
 });

@@ -331,6 +331,42 @@ function getNextIntervalTime(intervalMinutes){
   return estTime;
 }
 
+function epochTomorrowMidnightET() {
+  const tz = 'America/New_York';
+
+  // 1) Get today's date in ET (year/month/day)
+  const parts = new Intl.DateTimeFormat('en-CA', {
+    timeZone: tz, year: 'numeric', month: '2-digit', day: '2-digit'
+  }).formatToParts(new Date());
+
+  const y = +parts.find(p => p.type === 'year').value;
+  const m = +parts.find(p => p.type === 'month').value;    // 1–12
+  const d = +parts.find(p => p.type === 'day').value;      // 1–31
+
+  // 2) Compute "tomorrow" (UTC math to handle month/year rollovers)
+  const tmp = new Date(Date.UTC(y, m - 1, d));
+  tmp.setUTCDate(tmp.getUTCDate() + 1);
+  const y2 = tmp.getUTCFullYear(), m2 = tmp.getUTCMonth() + 1, d2 = tmp.getUTCDate();
+
+  // 3) Determine ET offset for that date (e.g., GMT-5 or GMT-4)
+  const noonUTC = new Date(Date.UTC(y2, m2 - 1, d2, 12, 0, 0)); // safe middle of the day
+  const withOffset = new Intl.DateTimeFormat('en-US', {
+    timeZone: tz, hour12: false, timeZoneName: 'shortOffset'
+  }).format(noonUTC); // e.g., "… GMT-4"
+
+  const mOffset = /GMT([+-]\d{1,2})(?::(\d{2}))?/.exec(withOffset);
+  const hours = mOffset ? parseInt(mOffset[1], 10) : 0;
+  const mins  = mOffset && mOffset[2] ? parseInt(mOffset[2], 10) : 0;
+  const offsetMinutes = hours * 60 + Math.sign(hours || 1) * mins; // e.g., -240 or -300
+
+  // 4) Convert local ET midnight -> UTC epoch
+  const localMidnightUTCBase = Date.UTC(y2, m2 - 1, d2, 0, 0, 0);
+  const epochMs = localMidnightUTCBase - offsetMinutes * 60_000; // utc = local - offset
+
+  return epochMs;                         // epoch milliseconds
+  // return Math.floor(epochMs / 1000);   // epoch seconds (optional)
+}
+
 
 module.exports = {
     generateVerificationCode:generateVerificationCode,
@@ -352,5 +388,6 @@ module.exports = {
     assignLevel:assignLevel,
     getReadableTimeUntilExpiration:getReadableTimeUntilExpiration,
     getHidingOrder:getHidingOrder,
-    getNextIntervalTime:getNextIntervalTime
+    getNextIntervalTime:getNextIntervalTime,
+    epochTomorrowMidnightET:epochTomorrowMidnightET
 }
