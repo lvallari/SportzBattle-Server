@@ -92,6 +92,7 @@ router.post('/payoutRequestedNotification', function (req, res, next) {
 
     var mailObj = {
         to: 'lvallari@gmail.com',
+        //to: 'andres@rank-x.com',
         from: "admin@sportzbattle.com",
         templateId: "d-519a8f7e98f442efb08e26237547ed58",
         dynamic_template_data: {
@@ -131,7 +132,7 @@ function sendMail(request){
         console.log('Message sent')
     }).catch((error) => {
         console.log(error)
-        //console.log(error.response.body.errors[0].message)
+        console.log(error.response.body.errors[0].message)
     })
     
 }

@@ -1,7 +1,7 @@
 const sgMail = require('@sendgrid/mail');
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
-
+/*
 function planHasBeenUpdated(data){
     var mailObj = {
         to: data.email,
@@ -23,7 +23,7 @@ function planHasBeenCancelled(data){
 
     sendMail(mailObj);
 }
-
+*/
 
 function sendMail(request){
 
@@ -39,6 +39,5 @@ function sendMail(request){
 }
 
 module.exports = {
-    planHasBeenUpdated: planHasBeenUpdated,
-    planHasBeenCancelled:planHasBeenCancelled
+    
 };
