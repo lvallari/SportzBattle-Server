@@ -14,10 +14,10 @@ router.post('/get', function (req, res, next) {
     var sql;
 
 
-    if (filters.categories.all && filters.difficulties.all && !filters.query) sql = `SELECT * FROM questions LIMIT 100 OFFSET ${offset};`;
+    if (filters.categories.all && filters.difficulties.all && !filters.query) sql = `SELECT * FROM questions2 LIMIT 100 OFFSET ${offset};`;
     else {
         var filters_added = 0;
-        sql = `SELECT * FROM questions WHERE `;
+        sql = `SELECT * FROM questions2 WHERE `;
         if (!filters.difficulties.all) {
             //filter out by difficulties
             
@@ -48,6 +48,9 @@ router.post('/get', function (req, res, next) {
 
     conn.query(sql, (err, result) => {
         if (err) throw err;
+
+        console.log('result', result);
+
         res.status(200).send(result);
         releaseConnection(conn);
     });

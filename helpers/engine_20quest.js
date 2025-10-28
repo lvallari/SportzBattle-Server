@@ -126,6 +126,15 @@ async function getQuestion(question_id, index, game_id){
 
     question.hiding_order = common.crypt('sb',JSON.stringify(common.getHidingOrder(question.answers, questionx.correct_answer)));
     console.log('sent quest20-question', question);
+
+    //get user who submitted question
+    if (questionx.submitted_by_user_id) {
+        var userx = await tables.getByField('users', 'user_id', questionx.submitted_by_user_id);
+        var user = userx[0];
+
+        question.submitted_by_user = user.username;
+    }
+
     sendMessageQuestGame(question);
 }
 

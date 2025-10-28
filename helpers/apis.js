@@ -242,7 +242,7 @@ async function getH2HGame(game_id){
         });
 
         var questions = [];
-        questions_raw.forEach(x => {
+        for (let x of questions_raw){
             var question = {
                     message: 'question',
                     question_id: x.question_id,
@@ -254,8 +254,16 @@ async function getH2HGame(game_id){
                 }
             question.hiding_order = common.crypt('sb',JSON.stringify(common.getHidingOrder(question.answers, x.correct_answer)));
 
+            //get user who submitted question
+            if (questionx.submitted_by_user_id) {
+                var userx = await tables.getByField('users', 'user_id', questionx.submitted_by_user_id);
+                var user = userx[0];
+
+                question.submitted_by_user = user.username;
+            }
+
             questions.push(question);      
-        });
+        };
 
         
         game.questions = questions;

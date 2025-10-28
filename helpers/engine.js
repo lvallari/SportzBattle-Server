@@ -43,6 +43,15 @@ async function getQuestion(){
 
     question.hiding_order = common.crypt('sb',JSON.stringify(common.getHidingOrder(question.answers, questionx.correct_answer)));
     //console.log('sent ', question);
+    
+    //get user who submitted question
+    if (questionx.submitted_by_user_id){
+        var userx = await tables.getByField('users','user_id',questionx.submitted_by_user_id);
+        var user = userx[0];
+
+        question.submitted_by_user = user.username;
+    }
+    
     sendMessage(question);
 
     //send % of users that answered correctly
