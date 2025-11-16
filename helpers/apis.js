@@ -231,7 +231,7 @@ async function awardPoints(user_id, points){
 async function getH2HGame(game_id){
     var gamex = await tables.getByField('h2h_games','h2h_game_id', game_id);
     var game = gamex[0];
-
+   
     //get questions
     try{
         var question_ids = JSON.parse(game.question_ids);
@@ -240,7 +240,6 @@ async function getH2HGame(game_id){
         questions_raw = questions_raw.sort((a,b) => {
             return a.difficulty - b.difficulty;
         });
-
         var questions = [];
         for (let x of questions_raw){
             var question = {
@@ -253,19 +252,18 @@ async function getH2HGame(game_id){
                     difficulty: x.difficulty
                 }
             question.hiding_order = common.crypt('sb',JSON.stringify(common.getHidingOrder(question.answers, x.correct_answer)));
-
             //get user who submitted question
-            if (questionx.submitted_by_user_id) {
-                var userx = await tables.getByField('users', 'user_id', questionx.submitted_by_user_id);
+            if (x.submitted_by_user_id) {
+                var userx = await tables.getByField('users', 'user_id', x.submitted_by_user_id);
                 var user = userx[0];
 
-                question.submitted_by_user = user.username;
+                question.username = user.username;
+                question.user_image = user.image;
             }
 
             questions.push(question);      
         };
 
-        
         game.questions = questions;
 
         game.expires_in = common.getReadableTimeUntilExpiration(game.expiration_timestamp);

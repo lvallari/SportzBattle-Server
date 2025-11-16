@@ -31,6 +31,17 @@ async function getQuestion(){
     var res = await questions.getRandom();
     var questionx = res[0];
    //console.log('questionx', questionx);
+
+   //questionx.submitted_by_user_id = 6;
+
+   //if question is submitted by a user
+   if (questionx.submitted_by_user_id){
+    //get user
+    var userx = await tables.getByField('users','user_id',questionx.submitted_by_user_id);
+    var user = userx[0];
+    //console.log('user', user);
+   }
+
     var question = {
         message: 'question',
         question_id: questionx.question_id,
@@ -38,7 +49,9 @@ async function getQuestion(){
         answers: common.shuffle([questionx.correct_answer, questionx.option1, questionx.option2, questionx.option3]),
         key: common.crypt('sb',questionx.correct_answer),
         value_points: 100,//questionx.value_points,
-        category: questionx.category
+        category: questionx.category,
+        username: user ? user.username:undefined,
+        user_image: user ? user.image:undefined
     }
 
     question.hiding_order = common.crypt('sb',JSON.stringify(common.getHidingOrder(question.answers, questionx.correct_answer)));
@@ -51,6 +64,8 @@ async function getQuestion(){
 
         question.submitted_by_user = user.username;
     }
+
+    //console.log('question', question);
     
     sendMessage(question);
 
