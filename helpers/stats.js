@@ -22,7 +22,8 @@ function getUserStats(user_id){
         Promise.all([
             tables.getAll('games'),
             getUserActivityWithCategory(),
-            tables.getByField('users','account_type','player')
+            tables.getByField('users','account_type','player'),
+            tables.getAll('user_badges')
         ]).then( data => {
 
             console.log('user_id', user_id);
@@ -30,6 +31,7 @@ function getUserStats(user_id){
             var games = data[0];
             var user_activity = data[1];
             var users = data[2];
+            var badges = data[3];
 
             var start_of_month_time = common.getFirstDayOfMonthEpoch();
             var today_at_midnight = common.getEpochTimeForTodayAtMidnight();
@@ -39,6 +41,7 @@ function getUserStats(user_id){
             users.forEach(x => {
                 x.games = games.filter(n => {return n.user_id == x.user_id});
 
+                x.badges = badges.filter(n => { return n.user_id == x.user_id}).length;
                 x.number_of_games = x.games.length;
                 //get top score
                 var top_score_all_time = 0;
@@ -180,12 +183,23 @@ function getUserStats(user_id){
             user_record.mlb_pct_rank = users_sorted_by_mlb_pct.map(x => {return x.user_id}).indexOf(Number(user_id)) + 1;
             user_record.mlb_pct_number_players = users_sorted_by_mlb_pct.length;
 
+            //sort_by_badges
+            var users_sorted_by_badges = users.sort((a,b) => {return b.badges - a.badges});
+            user_record.badges_rank = users_sorted_by_badges.map(x => {return x.user_id}).indexOf(Number(user_id)) + 1;
+            
+            //sort_by_tokens
+            var users_sorted_by_tokens = users.sort((a,b) => {return b.tokens - a.tokens});
+            user_record.tokens_rank = users_sorted_by_tokens.map(x => {return x.user_id}).indexOf(Number(user_id)) + 1;
+            
             user_record.number_of_games_rank_suffix = common.getOrdinalSuffix(user_record.number_of_games_rank);
             user_record.games_today_rank_suffix = common.getOrdinalSuffix(user_record.games_today_rank);
             user_record.all_time_points_rank_suffix = common.getOrdinalSuffix(user_record.all_time_points_rank);
             user_record.high_points_today_rank_suffix = common.getOrdinalSuffix(user_record.high_points_today_rank);
             user_record.monthly_points_rank_suffix = common.getOrdinalSuffix(user_record.monthly_points_rank);
             user_record.top_score_all_time_rank_suffix = common.getOrdinalSuffix(user_record.top_score_all_time_rank);
+
+            user_record.badges_rank_suffix = common.getOrdinalSuffix(user_record.badges_rank);
+            user_record.tokens_rank_suffix = common.getOrdinalSuffix(user_record.tokens_rank);
 
             user_record.all_pct_rank_suffix = common.getOrdinalSuffix(user_record.all_pct_rank);
             user_record.nba_pct_rank_suffix = common.getOrdinalSuffix(user_record.nba_pct_rank);
@@ -213,7 +227,8 @@ function getUserStatsForAdmin(){
             getUserActivityWithCategory(),
             tables.getByField('users','account_type','player'),
             tables.getAll('user_activity'),
-            tables.getAll('venues')
+            tables.getAll('venues'),
+            tables.getAll('user_badges')
         ]).then( data => {
 
             var games = data[0];
@@ -221,12 +236,15 @@ function getUserStatsForAdmin(){
             var users = data[2];
             var user_activity = data[3];
             var venues = data[4];
+            var badges = data[5];
 
             var start_of_month_time = common.getFirstDayOfMonthEpoch();
             var today_at_midnight = common.getEpochTimeForTodayAtMidnight();
 
             users.forEach(x => {
                 x.games = games.filter(n => {return n.user_id == x.user_id});
+
+                x.badges = badges.filter(n => { return n.user_id == x.user_id}).length;
 
                 x.number_of_games = x.games.length;
                 //get top score

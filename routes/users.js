@@ -119,6 +119,15 @@ router.get('/getAllGames', function(req, res, next) {
   //res.send('respond with a resource');
 });
 
+router.get('/getAllGamesLeaderboard', function(req, res, next) {
+  users.getAllGamesLeaderboard().then(data => {
+    res.status(200).send(data);
+  }).catch((err) => {
+    res.status(201).send(err);
+  });
+  //res.send('respond with a resource');
+});
+
 router.get('/getUserDailyHighScore', function(req, res, next) {
   var user_id = req.query.id;
   users.getUserDailyHighScore(user_id).then(data => {

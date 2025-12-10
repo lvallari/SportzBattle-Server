@@ -78,7 +78,76 @@ function getAllGames(){
         RIGHT JOIN users ON games.user_id=users.user_id`;
         conn.query(sql, (err, result) => {
             if (err) return reject(err);
+
             resolve(result);
+        });
+    });
+}
+
+function getAllGamesLeaderboard(){
+    return new Promise(function (resolve, reject) {
+        var sql = `SELECT 
+        games.*,
+        venues.*,
+        users.username AS username, users.image AS user_image, users.email, users.points 
+        FROM games 
+        RIGHT JOIN venues ON venues.venue_id=games.venue_id 
+        RIGHT JOIN users ON games.user_id=users.user_id`;
+        conn.query(sql, (err, result) => {
+            if (err) return reject(err);
+
+            var games = result;
+            //console.log('games', games.length);
+
+            //group by users
+            var users = [];
+            games.forEach(x => {
+                var record = users.find(n => { return n.user_id == x.user_id});
+                if (record){
+                    record.games.push({
+                            score: x.score,
+                            timestamp: x.timestamp
+                        });
+                }
+                else{
+                    user_object = {
+                        user_id: x.user_id,
+                        username: x.username,
+                        image: x.user_image,
+                        all_time_points: x.points,
+                        games: [{
+                            score: x.score,
+                            timestamp: x.timestamp
+                        }],
+                        badges:[],
+                        tokens:[]
+                    }
+
+                    users.push(user_object);
+                }
+            });
+
+            //console.log('users', users.length);
+
+
+            //get badges
+            tables.getAll('user_badges').then(function (badges) {
+                users.forEach(x => {
+                    var user_badges = badges.filter(n => { return n.user_id == x.user_id }).map(n => { return { badge_name: n.badge_name, timestamp: n.timestamp } });
+                    x.badges = user_badges;
+                });
+
+                //get badges
+                tables.getAll('transactions').then(function (transactions) {
+                    users.forEach(x => {
+                        var user_transactions = transactions.filter(n => { return n.user_id == x.user_id }).map(n => { return { value: n.value, timestamp: n.timestamp } });
+                        x.tokens = user_transactions;
+                    });
+
+                    resolve(users);
+                });
+            });
+      
         });
     });
 }
@@ -199,5 +268,6 @@ module.exports = {
     getAllGames:getAllGames,
     getUserDailyHighScore:getUserDailyHighScore,
     updateBadgesCounter:updateBadgesCounter,
-    recordSpunTheWheel:recordSpunTheWheel
+    recordSpunTheWheel:recordSpunTheWheel,
+    getAllGamesLeaderboard:getAllGamesLeaderboard
 }
