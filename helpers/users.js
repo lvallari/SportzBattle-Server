@@ -152,6 +152,62 @@ function getAllGamesLeaderboard(){
     });
 }
 
+function getInGamesLeaderboard(){
+    return new Promise(function (resolve, reject) {
+        var sql = `SELECT 
+        games.*,
+        venues.*,
+        users.username AS username, users.image AS user_image  
+        FROM games 
+        RIGHT JOIN venues ON venues.venue_id=games.venue_id 
+        RIGHT JOIN users ON games.user_id=users.user_id`;
+        conn.query(sql, (err, result) => {
+            if (err) return reject(err);
+
+            //filter only todays games
+            var epoch_start_of_day = common.getEpochTimeForTodayAtMidnight();
+            console.log('epoch_start_of_day',epoch_start_of_day);
+            var games = result.filter(x => { return x.timestamp >= epoch_start_of_day});
+            //console.log('games', games.length);
+
+            //group by users
+            var users = [];
+            games.forEach(x => {
+                var record = users.find(n => { return n.user_id == x.user_id});
+                if (record){
+                    //check if score from game is max score
+                    if (x.score >= record.max_score) record.max_score = x.score;
+                    /*
+                    record.games.push({
+                            score: x.score,
+                            timestamp: x.timestamp
+                        });
+                    */
+                }
+                else{
+                    user_object = {
+                        user_id: x.user_id,
+                        username: x.username,
+                        image: x.user_image,
+                        max_score: x.score
+                    }
+
+                    users.push(user_object);
+                }
+            });
+
+            users = users.sort((a,b) => { return b.max_score - a.max_score});
+            users.forEach((x,i) => {
+                x.position = i+1;
+            })
+
+            console.log('users', users);
+            resolve(users);
+      
+        });
+    });
+}
+
 function getUsersByVenue(venue_id){
     return new Promise(function (resolve, reject) {
         var sql = `SELECT 
@@ -269,5 +325,6 @@ module.exports = {
     getUserDailyHighScore:getUserDailyHighScore,
     updateBadgesCounter:updateBadgesCounter,
     recordSpunTheWheel:recordSpunTheWheel,
-    getAllGamesLeaderboard:getAllGamesLeaderboard
+    getAllGamesLeaderboard:getAllGamesLeaderboard,
+    getInGamesLeaderboard:getInGamesLeaderboard
 }
