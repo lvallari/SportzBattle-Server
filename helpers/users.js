@@ -144,13 +144,31 @@ function getAllGamesLeaderboard(){
                         x.tokens = user_transactions;
                     });
 
-                    resolve(users);
+                    tables.getAll('record_holders').then(function (record_holders) {
+                        record_holders.forEach(n => {
+                            var user = users.find(m => { return m.user_id === n.user_id });
+                            //console.log('user',user);
+                            n.username = user.username;
+                            n.user_image = user.image;
+                            n.days_with_record = common.getDaysSinceEpoch(n.timestamp);
+                        });
+
+                        resolve({
+                            users: users,
+                            record_holders: record_holders
+                        });
+
+                    });
+
+
                 });
             });
       
         });
     });
 }
+
+
 
 function getInGamesLeaderboard(){
     return new Promise(function (resolve, reject) {

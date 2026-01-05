@@ -23,7 +23,9 @@ function getUserStats(user_id){
             tables.getAll('games'),
             getUserActivityWithCategory(),
             tables.getByField('users','account_type','player'),
-            tables.getAll('user_badges')
+            tables.getAll('user_badges'),
+            tables.getAll('transactions'),
+            tables.getAll('record_holders')
         ]).then( data => {
 
             console.log('user_id', user_id);
@@ -32,17 +34,27 @@ function getUserStats(user_id){
             var user_activity = data[1];
             var users = data[2];
             var badges = data[3];
+            var transactions = data[4];
+            var record_holders = data[5];
+
 
             var start_of_month_time = common.getFirstDayOfMonthEpoch();
             var today_at_midnight = common.getEpochTimeForTodayAtMidnight();
-
-            
+          
 
             users.forEach(x => {
                 x.games = games.filter(n => {return n.user_id == x.user_id});
 
                 x.badges = badges.filter(n => { return n.user_id == x.user_id}).length;
                 x.number_of_games = x.games.length;
+                
+                x.transactions = transactions.filter(n => { return n.user_id == x.user_id});
+                var tokens = 0;
+                x.transactions.forEach(n => {
+                    if (n.value > 0) tokens += n.value;
+                });
+                x.tokens = tokens;
+                
                 //get top score
                 var top_score_all_time = 0;
                 var top_score_month = 0;
@@ -120,6 +132,8 @@ function getUserStats(user_id){
 
             });
 
+             console.log('users', users);
+
             //get user record
             var user_record = users.find(x => {return x.user_id == user_id});
 
@@ -131,6 +145,7 @@ function getUserStats(user_id){
             var users_sorted_by_games = users.sort((a,b) => {return b.number_of_games - a.number_of_games});
             user_record.number_of_games_rank = users_sorted_by_games.map(x => {return x.user_id}).indexOf(Number(user_id)) + 1;
             user_record.number_of_games_number_players = users_sorted_by_games.length;
+            var record_holder_games = users_sorted_by_games[0];
 
             //sort by games today
             var users_sorted_by_games_today = users.sort((a,b) => {return b.games_today - a.games_today});
@@ -141,6 +156,7 @@ function getUserStats(user_id){
             var users_sorted_by_top_score = users.sort((a,b) => {return b.top_score_all_time - a.top_score_all_time});
             user_record.top_score_all_time_rank = users_sorted_by_top_score.map(x => {return x.user_id}).indexOf(Number(user_id)) + 1;
             user_record.top_score_all_time_number_players = users_sorted_by_top_score.length;
+            var record_holder_top_score = users_sorted_by_top_score[0];
 
             //sort by top_score month
             var users_sorted_by_top_score_month = users.sort((a,b) => {return b.top_score_month - a.top_score_month});
@@ -151,6 +167,7 @@ function getUserStats(user_id){
             var users_sorted_by_all_time_points = users.sort((a,b) => {return b.all_time_points - a.all_time_points});
             user_record.all_time_points_rank = users_sorted_by_all_time_points.map(x => {return x.user_id}).indexOf(Number(user_id)) + 1;
             user_record.all_time_points_number_players = users_sorted_by_all_time_points.length;
+            var record_holder_all_points = users_sorted_by_all_time_points[0];
 
             //sort by daily points
             var users_sorted_by_points_today = users.sort((a,b) => {return b.high_points_today - a.high_points_today});
@@ -186,10 +203,12 @@ function getUserStats(user_id){
             //sort_by_badges
             var users_sorted_by_badges = users.sort((a,b) => {return b.badges - a.badges});
             user_record.badges_rank = users_sorted_by_badges.map(x => {return x.user_id}).indexOf(Number(user_id)) + 1;
+            var record_holder_badges = users_sorted_by_badges[0];
             
             //sort_by_tokens
             var users_sorted_by_tokens = users.sort((a,b) => {return b.tokens - a.tokens});
             user_record.tokens_rank = users_sorted_by_tokens.map(x => {return x.user_id}).indexOf(Number(user_id)) + 1;
+            var record_holder_tokens = users_sorted_by_tokens[0];
             
             user_record.number_of_games_rank_suffix = common.getOrdinalSuffix(user_record.number_of_games_rank);
             user_record.games_today_rank_suffix = common.getOrdinalSuffix(user_record.games_today_rank);
@@ -208,6 +227,32 @@ function getUserStats(user_id){
 
             delete user_record.games;
             delete user_record.user_activity;
+            delete user_record.transactions;
+
+            record_holders.forEach(x => {
+                
+                if (x.category == 'all_games'){
+                    if (record_holder_games.user_id != x.user_id || record_holder_games.number_of_games != x.value) 
+                        updateRecord(x, record_holder_games.user_id, record_holder_games.number_of_games);
+                }
+                else if (x.category == 'top_score'){
+                    if (record_holder_top_score.user_id != x.user_id || record_holder_top_score.top_score_all_time != x.value) 
+                        updateRecord(x, record_holder_top_score.user_id, record_holder_top_score.top_score_all_time);
+                }
+                else if (x.category == 'badges'){
+                    if (record_holder_badges.user_id != x.user_id || record_holder_badges.badges != x.value) 
+                        updateRecord(x, record_holder_badges.user_id, record_holder_badges.badges);
+                }
+                else if (x.category == 'tokens'){
+                    if (record_holder_tokens.user_id != x.user_id || record_holder_tokens.tokens != x.value) 
+                        updateRecord(x, record_holder_tokens.user_id, record_holder_badges.tokens);
+                }
+                else if (x.category == 'total_points'){
+                    if (record_holder_all_points.user_id != x.user_id || record_holder_all_points.all_time_points != x.value) 
+                        updateRecord(x, record_holder_all_points.user_id, record_holder_all_points.all_time_points);
+                }
+            });
+            
 
             resolve(user_record);
 
@@ -217,6 +262,15 @@ function getUserStats(user_id){
         })        
     });
 
+}
+
+function updateRecord(record, user_id, value) {
+    tables.updateItem('record_holders', 'record_holder_id', {
+        record_holder_id: record.record_holder_id,
+        user_id: user_id,
+        timestamp: Date.now(), 
+        value: value
+    })
 }
 
 function getUserStatsForAdmin(){

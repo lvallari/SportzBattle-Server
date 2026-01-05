@@ -367,6 +367,19 @@ function epochTomorrowMidnightET() {
   // return Math.floor(epochMs / 1000);   // epoch seconds (optional)
 }
 
+function getDaysSinceEpoch(epochSeconds) {
+  const msInDay = 24 * 60 * 60 * 1000;
+  const now = Date.now();
+  // Convert input to milliseconds if it's in seconds
+  const past = epochSeconds * 1000;
+  
+  const diff = now - past;
+  const days = Math.floor(diff / msInDay);
+  
+  // Return 1 if less than a full day has passed, otherwise return the count
+  return days < 1 ? 1 : days;
+}
+
 
 module.exports = {
     generateVerificationCode:generateVerificationCode,
@@ -389,5 +402,6 @@ module.exports = {
     getReadableTimeUntilExpiration:getReadableTimeUntilExpiration,
     getHidingOrder:getHidingOrder,
     getNextIntervalTime:getNextIntervalTime,
-    epochTomorrowMidnightET:epochTomorrowMidnightET
+    epochTomorrowMidnightET:epochTomorrowMidnightET,
+    getDaysSinceEpoch:getDaysSinceEpoch
 }
