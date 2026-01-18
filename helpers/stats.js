@@ -209,6 +209,8 @@ function getUserStats(user_id){
             var users_sorted_by_tokens = users.sort((a,b) => {return b.tokens - a.tokens});
             user_record.tokens_rank = users_sorted_by_tokens.map(x => {return x.user_id}).indexOf(Number(user_id)) + 1;
             var record_holder_tokens = users_sorted_by_tokens[0];
+
+            //console.log('users_sorted_by_tokens',users_sorted_by_tokens.slice(0,3));
             
             user_record.number_of_games_rank_suffix = common.getOrdinalSuffix(user_record.number_of_games_rank);
             user_record.games_today_rank_suffix = common.getOrdinalSuffix(user_record.games_today_rank);
@@ -232,24 +234,29 @@ function getUserStats(user_id){
             record_holders.forEach(x => {
                 
                 if (x.category == 'all_games'){
-                    if (record_holder_games.user_id != x.user_id || record_holder_games.number_of_games != x.value) 
-                        updateRecord(x, record_holder_games.user_id, record_holder_games.number_of_games);
+                    if (record_holder_games.user_id != x.user_id) updateRecord(x, record_holder_games.user_id, record_holder_games.number_of_games);
+                    else if (record_holder_games.number_of_games != x.value) updateRecordValue(x, record_holder_games.user_id, record_holder_games.number_of_games);
+                        
                 }
                 else if (x.category == 'top_score'){
-                    if (record_holder_top_score.user_id != x.user_id || record_holder_top_score.top_score_all_time != x.value) 
-                        updateRecord(x, record_holder_top_score.user_id, record_holder_top_score.top_score_all_time);
+                    if (record_holder_top_score.user_id != x.user_id) updateRecord(x, record_holder_top_score.user_id, record_holder_top_score.top_score_all_time);
+                    else if (record_holder_top_score.top_score_all_time != x.value) updateRecordValue(x, record_holder_top_score.user_id, record_holder_top_score.top_score_all_time);
+                        
                 }
                 else if (x.category == 'badges'){
-                    if (record_holder_badges.user_id != x.user_id || record_holder_badges.badges != x.value) 
-                        updateRecord(x, record_holder_badges.user_id, record_holder_badges.badges);
+                    if (record_holder_badges.user_id != x.user_id) updateRecord(x, record_holder_badges.user_id, record_holder_badges.badges);
+                    else if (record_holder_badges.badges != x.value) updateRecordValue(x, record_holder_badges.user_id, record_holder_badges.badges);
+                       
                 }
                 else if (x.category == 'tokens'){
-                    if (record_holder_tokens.user_id != x.user_id || record_holder_tokens.tokens != x.value) 
-                        updateRecord(x, record_holder_tokens.user_id, record_holder_badges.tokens);
+                    if (record_holder_tokens.user_id != x.user_id) updateRecord(x, record_holder_tokens.user_id, record_holder_tokens.tokens);
+                    else if (record_holder_tokens.tokens != x.value) updateRecordValue(x, record_holder_tokens.user_id, record_holder_tokens.tokens);
+                        
                 }
                 else if (x.category == 'total_points'){
-                    if (record_holder_all_points.user_id != x.user_id || record_holder_all_points.all_time_points != x.value) 
-                        updateRecord(x, record_holder_all_points.user_id, record_holder_all_points.all_time_points);
+                    if (record_holder_all_points.user_id != x.user_id) updateRecord(x, record_holder_all_points.user_id, record_holder_all_points.all_time_points);
+                    else if (record_holder_all_points.all_time_points != x.value) updateRecordValue(x, record_holder_all_points.user_id, record_holder_all_points.all_time_points);
+                        
                 }
             });
             
@@ -265,10 +272,20 @@ function getUserStats(user_id){
 }
 
 function updateRecord(record, user_id, value) {
+    //update record and set new timestamp
     tables.updateItem('record_holders', 'record_holder_id', {
         record_holder_id: record.record_holder_id,
         user_id: user_id,
         timestamp: Date.now(), 
+        value: value
+    })
+}
+
+function updateRecordValue(record, user_id, value) {
+    //update value record but not timestamp
+    tables.updateItem('record_holders', 'record_holder_id', {
+        record_holder_id: record.record_holder_id,
+        user_id: user_id,
         value: value
     })
 }

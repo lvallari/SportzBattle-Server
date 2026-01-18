@@ -367,17 +367,18 @@ function epochTomorrowMidnightET() {
   // return Math.floor(epochMs / 1000);   // epoch seconds (optional)
 }
 
-function getDaysSinceEpoch(epochSeconds) {
-  const msInDay = 24 * 60 * 60 * 1000;
+function getDaysSinceEpoch(epoch) {
   const now = Date.now();
-  // Convert input to milliseconds if it's in seconds
-  const past = epochSeconds * 1000;
+  const differenceInMs = now - epoch;
+
+  // If the provided time is in the future, return 0
+  if (differenceInMs < 0) return 0;
+
+  // Convert milliseconds to days
+  // 1 day = 24 hours * 60 minutes * 60 seconds * 1000 milliseconds
+  const msInADay = 24 * 60 * 60 * 1000;
   
-  const diff = now - past;
-  const days = Math.floor(diff / msInDay);
-  
-  // Return 1 if less than a full day has passed, otherwise return the count
-  return days < 1 ? 1 : days;
+  return Math.floor(differenceInMs / msInADay);
 }
 
 
