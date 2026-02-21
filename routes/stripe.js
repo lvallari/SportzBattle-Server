@@ -216,7 +216,7 @@ router.post('/webhooks', function (req, res, next) {
               billing_period: billing_period
             };
 
-            console.log('update user in database');
+            //console.log('update user in database');
             tables.updateItem('users', user_object);
 
           });

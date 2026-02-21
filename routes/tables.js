@@ -136,7 +136,7 @@ router.post('/getVerses', function (req, res, next) {
 router.post('/storeUserActivity', function(req, res, next){
   var data = req.body;
   data.timestamp_question = Date.now();
-  //console.log('insert object ', data);
+  //console.log('insert user activity object ', data);
   var sql = `INSERT INTO user_activity SET ?`;
   conn.query(sql, data, (err, result) => {
       if(err) throw err;

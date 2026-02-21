@@ -380,6 +380,80 @@ async function getQuest20Players(status){
     else return [];
 }
 
+async function getUserActivitiesbyGameId(game_id){
+return new Promise(function (resolve, reject) {
+        var sql = `SELECT 
+        user_activity.*,
+        questions.difficulty
+        FROM user_activity 
+        LEFT JOIN questions ON questions.question_id=user_activity.question_id
+        WHERE user_activity.game_id=${game_id}`;
+        conn.query(sql, (err, result) => {
+
+            if (err) {
+                console.log('error',err);
+                return reject(err);
+            }
+            
+            resolve(result);
+        });
+    });
+}
+
+async function getGameStats(game_id){
+    var activities = await getUserActivitiesbyGameId(game_id);
+    //console.log('game activities', activities);
+    
+    //get difficulty
+    var difficulty_total = 0;
+    var points = 0;
+    var correct_questions  = 0;
+    var difficulty = '';
+
+    activities.forEach(x => {
+        difficulty_total += x.difficulty;
+        points += x.got_it_right ? x.points:0;
+        if (x.got_it_right) correct_questions += 1;
+    })
+
+    var average_difficulty = difficulty_total / activities.length;
+
+    if (average_difficulty >= 6)  difficulty = 'EXPERT';
+    else if (average_difficulty >= 5)  difficulty = 'HARD';
+    else if (average_difficulty >= 3)  difficulty = 'MEDIUM';
+    else difficulty = 'EASY';
+
+
+    //calculate average time to answer question
+    var avg_points = correct_questions > 0 ? (points / correct_questions):0;
+    var time_average = (100 - avg_points)/10;
+
+    var tokens = 0;
+
+    if (points > 3000) tokens = 50000;
+    else if (points > 2500) tokens = 25000;
+    else if (points > 2000) tokens = 15000;
+    else if (points > 1500) tokens = 10000;
+    else if (points > 1000) tokens = 5000;
+    else if (points > 750) tokens = 2000;
+    else if (points > 500) tokens = 1000;
+
+
+    var stats = {
+        total_questions: activities.length,
+        correct_questions: correct_questions,
+        accuracy: ((correct_questions / activities.length)*100).toFixed(1) +'%',
+        difficulty: difficulty,
+        time_average: time_average.toFixed(1),
+        tokens: tokens
+    }
+
+    //console.log('stats', stats);
+
+    return stats;
+    
+}
+
 module.exports = {
     getGamesForLobby:getGamesForLobby,
     createGameH2H:createGameH2H,
@@ -389,5 +463,6 @@ module.exports = {
     getGamesH2HByUser:getGamesH2HByUser,
     getGame20QuestQuestions:getGame20QuestQuestions,
     quest20PlayerStatus:quest20PlayerStatus,
-    getQuest20Players:getQuest20Players
+    getQuest20Players:getQuest20Players,
+    getGameStats:getGameStats
 }

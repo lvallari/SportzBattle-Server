@@ -28,7 +28,7 @@ function getUserStats(user_id){
             tables.getAll('record_holders')
         ]).then( data => {
 
-            console.log('user_id', user_id);
+            //console.log('user_id', user_id);
 
             var games = data[0];
             var user_activity = data[1];
@@ -132,7 +132,7 @@ function getUserStats(user_id){
 
             });
 
-             console.log('users', users);
+             //console.log('users', users);
 
             //get user record
             var user_record = users.find(x => {return x.user_id == user_id});

@@ -219,7 +219,7 @@ function getInGamesLeaderboard(){
                 x.position = i+1;
             })
 
-            console.log('users', users);
+            //console.log('users', users);
             resolve(users);
       
         });
@@ -268,7 +268,7 @@ function updateBadgesCounter(user_id, category){
             if (err) return reject(err);
             
             var user = result[0];
-            console.log('user', user);
+            //console.log('user', user);
 
             if (!user.counters_badges) user.counters_badges = '0-0-0';
 

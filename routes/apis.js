@@ -69,4 +69,11 @@ router.get('/getQuest20Players', function(req, res, next) {
   });
 });
 
+router.get('/getGameStats', function(req, res, next) {
+  var game_id = req.query.id;
+  apis.getGameStats(game_id).then(function(data){
+      res.status(200).send(data);
+  });
+});
+
 module.exports = router;
