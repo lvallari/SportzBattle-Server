@@ -442,7 +442,7 @@ async function getGameStats(game_id){
     var stats = {
         total_questions: activities.length,
         correct_questions: correct_questions,
-        accuracy: ((correct_questions / activities.length)*100).toFixed(1) +'%',
+        accuracy: activities.length > 0 ? (((correct_questions / activities.length)*100).toFixed(1)):0,
         difficulty: difficulty,
         time_average: time_average.toFixed(1),
         tokens: tokens
