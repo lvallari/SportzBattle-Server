@@ -16,31 +16,32 @@ function getUserActivityWithCategory(){
     });
 }
 
-function getUserStats(user_id){
+async function getUserStats(user_id){
     
-    return new Promise(function (resolve, reject) {
-        Promise.all([
+    //return new Promise(function (resolve, reject) {
+        //Promise.all([
+        /*
             tables.getAll('games'),
             getUserActivityWithCategory(),
             tables.getByField('users','account_type','player'),
             tables.getAll('user_badges'),
             tables.getAll('transactions'),
             tables.getAll('record_holders')
-        ]).then( data => {
+        */
+        //]).then( data => {
 
             //console.log('user_id', user_id);
 
-            var games = data[0];
-            var user_activity = data[1];
-            var users = data[2];
-            var badges = data[3];
-            var transactions = data[4];
-            var record_holders = data[5];
+            var games = await tables.getAll('games'); //data[0];
+            var user_activity = await getUserActivityWithCategory();
+            var users = await  tables.getByField('users','account_type','player');//data[2];
+            var badges = await tables.getAll('user_badges'); //data[3];
+            var transactions = await tables.getAll('transactions'); //data[4];
+            var record_holders = await  tables.getAll('record_holders'); //data[5];
 
 
             var start_of_month_time = common.getFirstDayOfMonthEpoch();
             var today_at_midnight = common.getEpochTimeForTodayAtMidnight();
-          
 
             users.forEach(x => {
                 x.games = games.filter(n => {return n.user_id == x.user_id});
@@ -93,6 +94,17 @@ function getUserStats(user_id){
                 x.high_points_today = high_points_today;
 
                 x.user_activity = user_activity.filter(n => {return n.user_id == x.user_id});
+
+                //get correct answers and calculate speed
+                var correct_answers = x.user_activity.filter(x => {  return x.got_it_right && x.points});
+                var pointsx = 0;
+                correct_answers.forEach(n => { pointsx += n.points});
+                var average_points = pointsx / correct_answers.length;
+                var average_speed = 10 - (average_points / 10);
+                x.average_speed = average_speed;
+
+                x.accuracy = (correct_answers.length/x.user_activity.length)*100;
+
 
                 var nba_questions = x.user_activity.filter(n => {return n.category == 'NBA'});
                 var nfl_questions = x.user_activity.filter(n => {return n.category == 'NFL'});
@@ -164,16 +176,38 @@ function getUserStats(user_id){
             user_record.top_score_month_number_players = number_users_monthly;
 
             //sort by all time points
-            var users_sorted_by_all_time_points = users.sort((a,b) => {return b.all_time_points - a.all_time_points});
+            //var users_sorted_by_all_time_points = users.sort((a,b) => {return b.all_time_points - a.all_time_points});
+            var users_sorted_by_all_time_points = users.sort((a,b) => {return b.points - a.points});
             user_record.all_time_points_rank = users_sorted_by_all_time_points.map(x => {return x.user_id}).indexOf(Number(user_id)) + 1;
             user_record.all_time_points_number_players = users_sorted_by_all_time_points.length;
             var record_holder_all_points = users_sorted_by_all_time_points[0];
+
+            //get dashboard grid stats
+            var square1 = {}
+            if (user_record.all_time_points_rank > 1){
+                //console.log(users_sorted_by_all_time_points.slice(0,4).map(x => { return {username: x.username, points: x.points } }));
+                var text = 'You are ' + (users_sorted_by_all_time_points[user_record.all_time_points_rank - 2].points - 
+                    users_sorted_by_all_time_points[user_record.all_time_points_rank - 1].points).toLocaleString() + ' points behind ' +
+                    users_sorted_by_all_time_points[user_record.all_time_points_rank - 2].username + '!';
+                var image = users_sorted_by_all_time_points[user_record.all_time_points_rank - 2].image;
+                square1.text = text;
+                square1.image = image;
+            }
+            else {
+                var text = 'You are ' + (users_sorted_by_all_time_points[user_record.all_time_points_rank - 1].points - 
+                    users_sorted_by_all_time_points[user_record.all_time_points_rank].points).toLocaleString() + ' points ahead of ' +
+                    users_sorted_by_all_time_points[user_record.all_time_points_rank].username + '!';
+                var image = users_sorted_by_all_time_points[user_record.all_time_points_rank].image;
+                square1.text = text;
+                square1.image = image;
+            }
+            user_record.square1 = square1;
+
 
             //sort by daily points
             var users_sorted_by_points_today = users.sort((a,b) => {return b.high_points_today - a.high_points_today});
             user_record.high_points_today_rank = users_sorted_by_points_today.map(x => {return x.user_id}).indexOf(Number(user_id)) + 1;
             user_record.high_points_today_number_players = number_users_daily;
-
             //sort by monthly points
             var users_sorted_by_monthly_points = users.sort((a,b) => {return b.monthly_points - a.monthly_points});
             user_record.monthly_points_rank = users_sorted_by_monthly_points.map(x => {return x.user_id}).indexOf(Number(user_id)) + 1;
@@ -183,7 +217,6 @@ function getUserStats(user_id){
             var users_sorted_by_all_pct = users.sort((a,b) => {return b.all_pct - a.all_pct});
             user_record.all_pct_rank = users_sorted_by_all_pct.map(x => {return x.user_id}).indexOf(Number(user_id)) + 1;
             user_record.all_pct_number_players = users_sorted_by_all_pct.length;
-
             //sort_by_nba_pct
             var users_sorted_by_nba_pct = users.sort((a,b) => {return b.nba_pct - a.nba_pct});
             user_record.nba_pct_rank = users_sorted_by_nba_pct.map(x => {return x.user_id}).indexOf(Number(user_id)) + 1;
@@ -210,8 +243,23 @@ function getUserStats(user_id){
             user_record.tokens_rank = users_sorted_by_tokens.map(x => {return x.user_id}).indexOf(Number(user_id)) + 1;
             var record_holder_tokens = users_sorted_by_tokens[0];
 
-            //console.log('users_sorted_by_tokens',users_sorted_by_tokens.slice(0,3));
+            //sort_by_average_speed
+            var users_sorted_by_speed = users.sort((a,b) => {return a.average_speed - b.average_speed});
+            user_record.speed_rank = users_sorted_by_speed.map(x => {return x.user_id}).indexOf(Number(user_id)) + 1;
+
+            //calculate site_average
+            var correct_gamesn = user_activity.filter(x => { return x.got_it_right && x.points});
+            var pointsn = 0;
+            correct_gamesn.forEach(x => { return pointsn += x.points});
+            var average_pointsn = pointsn / correct_gamesn.length
+            var site_average = 10 - (average_pointsn / 10);
+            user_record.speed_site_average = site_average;
+
+            //sort_by_accuracy
+            var users_sorted_by_accuracy = users.sort((a,b) => {return b.accuracy - a.accuracy});
+            user_record.accuracy_rank = users_sorted_by_accuracy.map(x => {return x.user_id}).indexOf(Number(user_id)) + 1;
             
+            //console.log('users_sorted_by_tokens',users_sorted_by_tokens.slice(0,3));
             user_record.number_of_games_rank_suffix = common.getOrdinalSuffix(user_record.number_of_games_rank);
             user_record.games_today_rank_suffix = common.getOrdinalSuffix(user_record.games_today_rank);
             user_record.all_time_points_rank_suffix = common.getOrdinalSuffix(user_record.all_time_points_rank);
@@ -227,9 +275,40 @@ function getUserStats(user_id){
             user_record.nfl_pct_rank_suffix = common.getOrdinalSuffix(user_record.nfl_pct_rank);
             user_record.mlb_pct_rank_suffix = common.getOrdinalSuffix(user_record.mlb_pct_rank);
 
+            user_record.speed_rank_suffix = common.getOrdinalSuffix(user_record.speed_rank);
+            user_record.accuracy_rank_suffix = common.getOrdinalSuffix(user_record.accuracy_rank);
+            
+
             delete user_record.games;
             delete user_record.user_activity;
             delete user_record.transactions;
+
+            //get rivals
+            var rivals = await getRivals(user_id);
+            rivals.push({ user_id: user_id, points: user_record.points, image: user_record.image, username: user_record.user_name });
+
+            var rivals = rivals.sort((a,b) => { return b.points - a.points; });
+            var rivals_rank = rivals.map(x => { return x.user_id }).indexOf(user_id) + 1;
+            var square2 = {};
+            if (rivals_rank > 1){
+                var text = 'You are ' + (rivals[rivals_rank - 2].points - rivals[rivals_rank - 1].points).toLocaleString() + ' points behind ' +
+                    rivals[rivals_rank - 2].username + '!';
+                var image = rivals[rivals_rank - 2].image;
+                square2.text = text;
+                square2.image = image;
+            }
+            else {
+                var text = 'You are ' + (rivals[rivals_rank - 1].points - 
+                    rivals[rivals_rank].points).toLocaleString() + ' points ahead of ' +
+                    rivals[rivals_rank].username + '!';
+                var image = rivals[rivals_rank].image;
+                square2.text = text;
+                square2.image = image;
+            }
+
+            square2.value = common.getOrdinalSuffix(rivals_rank);
+            user_record.square2 = square2;
+            
 
             record_holders.forEach(x => {
                 
@@ -261,14 +340,33 @@ function getUserStats(user_id){
             });
             
 
-            resolve(user_record);
+            //resolve(user_record);
+            return user_record;
 
-        }).catch(err => {
-            console.log('err', err);
-            reject(err);
-        })        
+        //}).catch(err => {
+        //    console.log('err', err);
+        //    reject(err);
+        //})        
+   // }//);
+
+}
+
+async function getRivals(user_id){
+    return new Promise(function (resolve, reject) {
+        var sql = `SELECT scouting_actions.*, users.user_id, users.username, users.points, users.image FROM scouting_actions 
+        LEFT JOIN users ON users.user_id=scouting_actions.prospect_user_id  
+        WHERE scouting_actions.scout_user_id=${user_id}`;
+        
+        conn.query(sql, (err, result) => {
+
+            if (err) {
+                console.log('error',err);
+                return reject(err);
+            }
+            
+            resolve(result);
+        });
     });
-
 }
 
 function updateRecord(record, user_id, value) {
